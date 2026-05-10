@@ -1,14 +1,27 @@
 <?php
 
+use App\Http\Controllers\ClientController;
 use Illuminate\Support\Facades\Route;
-use Laravel\Fortify\Features;
+use Inertia\Inertia;
 
-Route::inertia('/', 'welcome', [
-    'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
+// --- PARTE PÚBLICA (CLIENTES) ---
+Route::get('/', function () {
+    return Inertia::render('home');
+})->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+Route::get('/register', function () {
+    return Inertia::render('auth/register');
 });
 
-require __DIR__.'/settings.php';
+Route::post('/register', [ClientController::class, 'store']);
+
+
+// --- PARTE PRIVADA (INTRANET / ADMIN) ---
+
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    
+    Route::get('/admin/dashboard', function () {
+    return Inertia::render('admin/dashboard'); 
+})->middleware(['auth'])->name('dashboard');
+
+});

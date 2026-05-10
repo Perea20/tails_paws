@@ -1,114 +1,137 @@
-import { Form, Head } from '@inertiajs/react';
-import InputError from '@/components/input-error';
-import PasswordInput from '@/components/password-input';
-import TextLink from '@/components/text-link';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
-import { login } from '@/routes';
-import { store } from '@/routes/register';
 
 export default function Register() {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        name: '',
+        lastname: '',
+        email: '',
+        phone: '',
+        address: '',
+        password: '',
+        password_confirmation: '',
+    });
+
+    const submit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post('/register', {
+            onFinish: () => reset('password', 'password_confirmation'),
+        });
+    };
+
     return (
         <>
-            <Head title="Register" />
-            <Form
-                {...store.form()}
-                resetOnSuccess={['password', 'password_confirmation']}
-                disableWhileProcessing
-                className="flex flex-col gap-6"
-            >
-                {({ processing, errors }) => (
-                    <>
-                        <div className="grid gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
-                                <Input
-                                    id="name"
-                                    type="text"
-                                    required
-                                    autoFocus
-                                    tabIndex={1}
-                                    autoComplete="name"
-                                    name="name"
-                                    placeholder="Full name"
-                                />
-                                <InputError
-                                    message={errors.name}
-                                    className="mt-2"
-                                />
-                            </div>
+            <Head title="Registro de Cliente" />
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    required
-                                    tabIndex={2}
-                                    autoComplete="email"
-                                    name="email"
-                                    placeholder="email@example.com"
-                                />
-                                <InputError message={errors.email} />
-                            </div>
+            <div className="mb-10 text-center">
+                <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Nuevo Cliente</h1>
+                <p className="text-gray-500 font-medium">Completa tus datos para empezar a cuidar de tu mascota</p>
+            </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="password">Password</Label>
-                                <PasswordInput
-                                    id="password"
-                                    required
-                                    tabIndex={3}
-                                    autoComplete="new-password"
-                                    name="password"
-                                    placeholder="Password"
-                                />
-                                <InputError message={errors.password} />
-                            </div>
+            <form onSubmit={submit} className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <Label className="text-xs uppercase font-bold text-gray-400 ml-1">Nombre</Label>
+                        <Input
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                            className="rounded-2xl h-12 border-gray-200"
+                            placeholder="Ej: Juan"
+                            required
+                        />
+                        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-xs uppercase font-bold text-gray-400 ml-1">Apellidos</Label>
+                        <Input
+                            value={data.lastname}
+                            onChange={(e) => setData('lastname', e.target.value)}
+                            className="rounded-2xl h-12 border-gray-200"
+                            placeholder="Ej: Pérez García"
+                            required
+                        />
+                        {errors.lastname && <p className="text-red-500 text-xs mt-1">{errors.lastname}</p>}
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <Label className="text-xs uppercase font-bold text-gray-400 ml-1">Correo Electrónico</Label>
+                        <Input
+                            type="email"
+                            value={data.email}
+                            onChange={(e) => setData('email', e.target.value)}
+                            className="rounded-2xl h-12 border-gray-200"
+                            placeholder="juan@ejemplo.com"
+                            required
+                        />
+                        {errors.email && <p className="text-red-500 text-xs mt-1 font-bold">{errors.email}</p>}
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-xs uppercase font-bold text-gray-400 ml-1">Teléfono</Label>
+                        <Input
+                            type="tel"
+                            value={data.phone}
+                            onChange={(e) => setData('phone', e.target.value)}
+                            className="rounded-2xl h-12 border-gray-200"
+                            placeholder="600 000 000"
+                        />
+                        {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                    </div>
+                </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="password_confirmation">
-                                    Confirm password
-                                </Label>
-                                <PasswordInput
-                                    id="password_confirmation"
-                                    required
-                                    tabIndex={4}
-                                    autoComplete="new-password"
-                                    name="password_confirmation"
-                                    placeholder="Confirm password"
-                                />
-                                <InputError
-                                    message={errors.password_confirmation}
-                                />
-                            </div>
+                <div className="space-y-2">
+                    <Label className="text-xs uppercase font-bold text-gray-400 ml-1">Dirección completa</Label>
+                    <Input
+                        value={data.address}
+                        onChange={(e) => setData('address', e.target.value)}
+                        className="rounded-2xl h-12 border-gray-200"
+                        placeholder="Calle, Número, Ciudad..."
+                    />
+                    {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
+                </div>
 
-                            <Button
-                                type="submit"
-                                className="mt-2 w-full"
-                                tabIndex={5}
-                                data-test="register-user-button"
-                            >
-                                {processing && <Spinner />}
-                                Create account
-                            </Button>
-                        </div>
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <Label className="text-xs uppercase font-bold text-gray-400 ml-1">Contraseña</Label>
+                        <Input
+                            type="password"
+                            value={data.password}
+                            onChange={(e) => setData('password', e.target.value)}
+                            className="rounded-2xl h-12 border-gray-200"
+                            required
+                        />
+                        {errors.password && <p className="text-red-500 text-xs mt-1 font-bold">{errors.password}</p>}
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-xs uppercase font-bold text-gray-400 ml-1">Confirmar</Label>
+                        <Input
+                            type="password"
+                            value={data.password_confirmation}
+                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                            className="rounded-2xl h-12 border-gray-200"
+                            required
+                        />
+                    </div>
+                </div>
 
-                        <div className="text-center text-sm text-muted-foreground">
-                            Already have an account?{' '}
-                            <TextLink href={login()} tabIndex={6}>
-                                Log in
-                            </TextLink>
-                        </div>
-                    </>
-                )}
-            </Form>
+                <div className="pt-4">
+                    <Button
+                        className="w-full bg-emerald-700 py-7 text-xl font-black hover:bg-emerald-800 rounded-2xl transition-all shadow-xl hover:scale-[1.01]"
+                        disabled={processing}
+                    >
+                        {processing ? 'CREANDO CUENTA...' : 'CREAR CUENTA'}
+                    </Button>
+                </div>
+            </form>
+
+            <div className="mt-10 text-center text-base font-medium text-gray-600">
+                ¿Ya eres cliente?{' '}
+                <Link href="/login" className="text-emerald-700 font-bold hover:underline ml-1">
+                    Inicia sesión aquí
+                </Link>
+            </div>
         </>
     );
 }
-
-Register.layout = {
-    title: 'Create an account',
-    description: 'Enter your details below to create your account',
-};

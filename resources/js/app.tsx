@@ -1,4 +1,5 @@
 import { createInertiaApp } from '@inertiajs/react';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
@@ -10,17 +11,25 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
-    layout: (name) => {
-        switch (true) {
-            case name === 'welcome':
-                return null;
-            case name.startsWith('auth/'):
-                return AuthLayout;
-            case name.startsWith('settings/'):
-                return [AppLayout, SettingsLayout];
-            default:
-                return AppLayout;
-        }
+    resolve: (name) => {
+
+        const page = resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')) as any;
+        
+        page.then((module: any) => {
+            const pageName = name.toLowerCase();
+            
+            if (pageName === 'home') {
+                module.default.layout = null;
+            } else if (pageName.startsWith('auth/')) {
+                module.default.layout = (page: any) => <AuthLayout children={page} />;
+            } else if (pageName.startsWith('settings/')) {
+                module.default.layout = (page: any) => <AppLayout children={<SettingsLayout children={page} />} />;
+            } else {
+                module.default.layout = (page: any) => <AppLayout children={page} />;
+            }
+        });
+
+        return page;
     },
     strictMode: true,
     withApp(app) {
@@ -36,5 +45,4 @@ createInertiaApp({
     },
 });
 
-// This will set light / dark mode on load...
 initializeTheme();
