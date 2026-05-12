@@ -22,6 +22,14 @@ class Client extends Authenticatable
         'password',
     ];
 
+    public function pets(){
+        return $this-> hasMany(Pet::class);
+    }
+
+    public function appointments(){
+        return $this-> hasMany(Appointment::class);
+    }
+
     protected $hidden = [
         'password',
         'remember_token',

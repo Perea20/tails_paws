@@ -18,7 +18,7 @@ export default function Home() {
                         href="/dashboard" 
                         className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white bg-emerald-700 rounded-lg hover:bg-emerald-700 transition-all"
                     >
-                        Acceso Personal
+                        Acceso staff
                     </Link>
                 </div>
             </nav>
@@ -83,7 +83,7 @@ export default function Home() {
                 </div>
             </section>
 
-            <section className="py-16 px-8 bg-white relative z-30 border-y border-gray-100">
+            <section id="nosotros" className="py-16 px-8 bg-white relative z-30 border-y border-gray-100">
                 <div className="max-w-5xl mx-auto bg-emerald-700 rounded-[3rem] p-8 md:p-12 flex flex-col md:flex-row items-center gap-12">
                     <div className="flex-1 text-center md:text-left">
                         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -111,7 +111,7 @@ export default function Home() {
                 </div>
             </section>
 
-            <section id="nosotros" className="py-24 px-8 bg-emerald-50 relative z-30">
+            <section className="py-24 px-8 bg-emerald-50 relative z-30">
                 <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16">
                     <div className="md:w-1/2">
                         <div className="relative">
@@ -143,7 +143,7 @@ export default function Home() {
                 </div>
             </section>
 
-            <section id="contacto" className="py-24 px-8 bg-white relative z-30">
+            <section id="contacto" className="py-12 px-8 bg-white relative z-30">
                 <div className="max-w-6xl mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
                         <div>
@@ -152,11 +152,30 @@ export default function Home() {
                             <div className="space-y-6">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center">📍</div>
-                                    <p className="text-gray-700 font-medium">Calle de los Amigos 123, Madrid</p>
+                                    <p className="text-gray-700 font-medium">Gremi des Fusters, 33, Palma de Mallorca</p>
+                                </div>
+                                <div className="my-6 mx-auto max-w-5xl px-4">
+                                    <div className="w-full h-60 max-w-md overflow-hidden rounded-xl shadow-sm border border-gray-100">
+                                        <iframe 
+                                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3073.9192834756095!2d2.6670144765129784!3d39.60650070455297!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1297933b44e65139%3A0x37fdb67139582520!2sGremi%20des%20Fusters%2C%2033%2C%20Nord%2C%2007009%20Palma%2C%20Illes%20Balears!5e0!3m2!1ses!2ses!4v1778444643145!5m2!1ses!2ses" 
+                                            className="w-full aspect-video sm:aspect-[21/9] lg:h-[500px]" 
+                                            style={{border:0}} 
+                                            loading="lazy" 
+                                            referrerPolicy="no-referrer-when-downgrade">
+                                        </iframe>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center">📞</div>
                                     <p className="text-gray-700 font-medium">+34 900 123 456</p>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center">⏰</div>
+                                    <ul className="text-gray-700 font-medium">
+                                        <li>Lunes a viernes: 9:00 - 14:00 / 16:00 - 21:00</li>
+                                        <li>Sábados: 9:00 - 16:00</li>
+                                        <li>Domingos: Cerrado</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -196,12 +215,13 @@ export default function Home() {
                 </div>
             </section>
 
-            <footer className="bg-emerald-700 border-t border-gray-100 py-16 px-8 relative z-30">
+            <footer className="bg-emerald-700 border-t border-gray-100 py-8 px-8 relative z-30">
                 <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-                    <div>
-                        <p className="text-white font-bold text-lg">Tails & Paws Vet</p>
-                        <p className="text-white text-sm mt-1">Tu clínica veterinaria de confianza.</p>
-                    </div>
+                    <img 
+                                src="/img/tplogotxtwhite.png" 
+                                alt="Veterinaria" 
+                                className="relative object-cover h-24 w-auto"
+                            />
                     <div className="flex gap-8 text-white text-sm font-medium">
                         <Link href="#" className="hover:text-emerald-200 transition-colors">Privacidad</Link>
                         <Link href="#" className="hover:text-emerald-200 transition-colors">Términos</Link>
