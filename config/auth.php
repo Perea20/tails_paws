@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Client; 
+use App\Models\Staff; 
 
 return [
 
@@ -14,6 +15,11 @@ return [
             'driver' => 'session',
             'provider' => 'clients',
         ],
+
+        'staff' => [
+        'driver' => 'session',
+        'provider' => 'staff_provider', // Nombre del proveedor que crearemos abajo
+        ],
     ],
 
     'providers' => [
@@ -21,6 +27,10 @@ return [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', Client::class), 
         ],
+        'staff_provider' => [
+        'driver' => 'eloquent',
+        'model' => Staff::class, 
+    ],
     ],
 
     'passwords' => [

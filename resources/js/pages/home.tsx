@@ -21,7 +21,7 @@ export default function Home() {
 
                 <div className="flex items-center gap-4">
                     <Link 
-                        href="/dashboard" 
+                        href="/admin/login" 
                         className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white bg-emerald-700 rounded-lg hover:bg-emerald-700 transition-all"
                     >
                         Acceso staff

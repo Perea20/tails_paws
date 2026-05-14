@@ -12,7 +12,6 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => {
-
         const page = resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')) as any;
         
         page.then((module: any) => {
@@ -20,11 +19,17 @@ createInertiaApp({
             
             if (pageName === 'home') {
                 module.default.layout = null;
-            } else if (pageName.startsWith('auth/')) {
+            } 
+            else if (pageName === 'admin/login') {
                 module.default.layout = (page: any) => <AuthLayout children={page} />;
-            } else if (pageName.startsWith('settings/')) {
+            }
+            else if (pageName.startsWith('auth/')) {
+                module.default.layout = (page: any) => <AuthLayout children={page} />;
+            } 
+            else if (pageName.startsWith('settings/')) {
                 module.default.layout = (page: any) => <AppLayout children={<SettingsLayout children={page} />} />;
-            } else {
+            } 
+            else {
                 module.default.layout = (page: any) => <AppLayout children={page} />;
             }
         });
