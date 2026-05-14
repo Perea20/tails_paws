@@ -1,7 +1,13 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import AppLogo from '@/components/app-logo';
+import { useState } from 'react';
 
 export default function Home() {
+    // Obtenemos los datos de auth desde las props compartidas
+    const { auth } = usePage().props as any;
+    const user = auth.user;
+    const [menuAbierto, setMenuAbierto] = useState(false);
+
     return (
         <div className="min-h-screen bg-white">
             <nav className="flex items-center justify-between px-8 py-4 bg-white border-b border-gray-100 relative z-50">
@@ -13,13 +19,70 @@ export default function Home() {
                     <li><a href="#contacto" className="hover:text-emerald-700 transition-colors">Contacto</a></li>
                 </ul>
 
-                <div className="flex items-center">
+                <div className="flex items-center gap-4">
                     <Link 
                         href="/dashboard" 
                         className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white bg-emerald-700 rounded-lg hover:bg-emerald-700 transition-all"
                     >
                         Acceso staff
                     </Link>
+
+                    {/* Lógica de Cliente */}
+                    {user ? (
+                        <div className="relative">
+                            <button 
+                                onClick={() => setMenuAbierto(!menuAbierto)}
+                                className="flex items-center gap-2 p-1 pr-3 rounded-full bg-gray-50 border border-gray-200 hover:border-emerald-300 transition-all focus:outline-none"
+                            >
+                                <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-bold uppercase">
+                                    {user.name.charAt(0)}
+                                </div>
+                                <span className="text-sm font-bold text-gray-700">{user.name}</span>
+                                <svg 
+                                    xmlns="http://www.w3.org/2000/svg" 
+                                    className={`w-4 h-4 text-gray-400 transition-transform ${menuAbierto ? 'rotate-180' : ''}`} 
+                                    fill="none" 
+                                    viewBox="0 0 24 24" 
+                                    stroke="currentColor"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            {menuAbierto && (
+                                <>
+                                    <div className="fixed inset-0 z-10" onClick={() => setMenuAbierto(false)}></div>
+                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-20">
+                                        <div className="px-4 py-2 text-xs text-gray-400 font-bold uppercase">Mi Cuenta</div>
+                                        <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors font-medium">
+                                            Ver mi perfil
+                                        </Link>
+                                        <Link href="/agenda" className="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors font-medium">
+                                            Mis citas
+                                        </Link>
+                                        <div className="border-t border-gray-100 my-1"></div>
+                                        <Link 
+                                            href="/logout" 
+                                            method="post" 
+                                            as="button" 
+                                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-bold transition-colors"
+                                        >
+                                            Cerrar Sesión
+                                        </Link>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ) : (
+                        <Link 
+                            href="/login"
+                            className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-50 text-gray-600 hover:bg-emerald-700 hover:text-white transition-all border border-gray-200"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                            </svg>
+                        </Link>
+                    )}
                 </div>
             </nav>
 
@@ -41,7 +104,7 @@ export default function Home() {
                         Gestión integral de pacientes, historiales clínicos y citas en tu clínica veterinaria de confianza.
                     </p>
                     <Link 
-                        href="/register" 
+                        href={user ? "/agenda" : "/register"} 
                         className="bg-emerald-700 text-white font-bold px-10 py-4 rounded-2xl hover:bg-emerald-800 transition-all hover:scale-105 mb-8 text-lg"
                     >
                         Pedir cita online
@@ -218,10 +281,10 @@ export default function Home() {
             <footer className="bg-emerald-700 border-t border-gray-100 py-8 px-8 relative z-30">
                 <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
                     <img 
-                                src="/img/tplogotxtwhite.png" 
-                                alt="Veterinaria" 
-                                className="relative object-cover h-24 w-auto"
-                            />
+                        src="/img/tplogotxtwhite.png" 
+                        alt="Veterinaria" 
+                        className="relative object-cover h-24 w-auto"
+                    />
                     <div className="flex gap-8 text-white text-sm font-medium">
                         <Link href="#" className="hover:text-emerald-200 transition-colors">Privacidad</Link>
                         <Link href="#" className="hover:text-emerald-200 transition-colors">Términos</Link>

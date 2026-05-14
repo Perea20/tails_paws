@@ -118,7 +118,7 @@ export default function Register() {
 
                 <div className="pt-4">
                     <Button
-                        className="w-full bg-emerald-700 py-7 text-xl font-black hover:bg-emerald-800 rounded-2xl transition-all shadow-xl hover:scale-[1.01]"
+                        className="w-full bg-emerald-700 py-7 text-xl text-white hover:bg-emerald-800 rounded-2xl transition-all shadow-xl hover:scale-[1.01]"
                         disabled={processing}
                     >
                         {processing ? 'CREANDO CUENTA...' : 'CREAR CUENTA'}
