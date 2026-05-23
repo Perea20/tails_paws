@@ -23,6 +23,9 @@ createInertiaApp({
             else if (pageName === 'admin/login') {
                 module.default.layout = (page: any) => <AuthLayout children={page} />;
             }
+            else if (pageName === 'auth/profile') {
+                module.default.layout = null; 
+            }
             else if (pageName.startsWith('auth/')) {
                 module.default.layout = (page: any) => <AuthLayout children={page} />;
             } 

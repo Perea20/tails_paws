@@ -1,4 +1,4 @@
-import { Head, usePage } from '@inertiajs/react'; // Importamos usePage
+import { Head, usePage } from '@inertiajs/react'; 
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 
 export default function Dashboard() {

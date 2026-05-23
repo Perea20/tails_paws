@@ -37,7 +37,7 @@ export default function Register() {
                         <Input
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
-                            className="rounded-2xl h-12 border-gray-200"
+                            className="rounded-2xl h-12 border-gray-200 text-neutral-900"
                             placeholder="Ej: Juan"
                             required
                         />
@@ -48,7 +48,7 @@ export default function Register() {
                         <Input
                             value={data.lastname}
                             onChange={(e) => setData('lastname', e.target.value)}
-                            className="rounded-2xl h-12 border-gray-200"
+                            className="rounded-2xl h-12 border-gray-200 text-neutral-900"
                             placeholder="Ej: Pérez García"
                             required
                         />
@@ -62,7 +62,7 @@ export default function Register() {
                             type="email"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
-                            className="rounded-2xl h-12 border-gray-200"
+                            className="rounded-2xl h-12 border-gray-200 text-neutral-900"
                             placeholder="juan@ejemplo.com"
                             required
                         />
@@ -74,7 +74,7 @@ export default function Register() {
                             type="tel"
                             value={data.phone}
                             onChange={(e) => setData('phone', e.target.value)}
-                            className="rounded-2xl h-12 border-gray-200"
+                            className="rounded-2xl h-12 border-gray-200 text-neutral-900"
                             placeholder="600 000 000"
                         />
                         {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
@@ -86,7 +86,7 @@ export default function Register() {
                     <Input
                         value={data.address}
                         onChange={(e) => setData('address', e.target.value)}
-                        className="rounded-2xl h-12 border-gray-200"
+                        className="rounded-2xl h-12 border-gray-200 text-neutral-900"
                         placeholder="Calle, Número, Ciudad..."
                     />
                     {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
@@ -99,7 +99,7 @@ export default function Register() {
                             type="password"
                             value={data.password}
                             onChange={(e) => setData('password', e.target.value)}
-                            className="rounded-2xl h-12 border-gray-200"
+                            className="rounded-2xl h-12 border-gray-200 text-neutral-900"
                             required
                         />
                         {errors.password && <p className="text-red-500 text-xs mt-1 font-bold">{errors.password}</p>}
@@ -110,7 +110,7 @@ export default function Register() {
                             type="password"
                             value={data.password_confirmation}
                             onChange={(e) => setData('password_confirmation', e.target.value)}
-                            className="rounded-2xl h-12 border-gray-200"
+                            className="rounded-2xl h-12 border-gray-200 text-neutral-900"
                             required
                         />
                     </div>

@@ -1,7 +1,6 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { CircleUser, House, Dog } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -17,32 +16,29 @@ import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Gestión clínica',
         href: '/admin/dashboard',
-        icon: LayoutGrid,
+        icon: House,
+    },
+    {
+        title: 'Gestión personal',
+        href: '/admin/staff',
+        icon: CircleUser,
+    },
+    {
+        title: 'Pacientes',
+        href: '/admin/animals',
+        icon: Dog,
     },
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
 
 export function AppSidebar() {
     return (
         <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader className="py-4"> {/* Añadimos padding vertical al header */}
+            <SidebarHeader className="py-4">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        {/* Aumentamos la altura del botón para que quepa el logo más grande */}
                         <SidebarMenuButton size="lg" className="h-auto py-2" asChild>
                             <Link href="/admin/dashboard" prefetch className="flex items-center gap-4">
                                 <div className="flex aspect-square size-16 shrink-0 items-center justify-center rounded-xl text-emerald-500 shadow-sm">
@@ -68,7 +64,6 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

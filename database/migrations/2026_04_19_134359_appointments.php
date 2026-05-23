@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('client_id')->constrained('clients')->onDelete('restrict');
             $table->foreignId('pet_id')->constrained('pets')->onDelete('restrict');
             $table->foreignId('record_type_id')->constrained('record_types');
+            $table->foreignId('staff_id')->constrained('staff')->onDelete('restrict');
             $table->date('date');
             $table->time('time');
             $table->timestamps();
