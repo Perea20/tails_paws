@@ -12,6 +12,14 @@ use App\Models\Staff;
 class StaffController extends Controller
 {
 
+    public function index()
+    {
+        
+        return Inertia::render('admin/staff/staff', [
+            'staff' => Staff::paginate(10),
+        ]);
+    }
+
     public function dashboard()
     {
         $user = Auth::guard('staff')->user();
@@ -43,7 +51,7 @@ class StaffController extends Controller
             abort(403, 'No tienes permisos para registrar nuevo personal.');
         }
 
-        return Inertia::render('admin/CreateStaff');
+        return Inertia::render('admin/staff/create');
     }
 
     public function storeStaff(Request $request)
@@ -56,7 +64,7 @@ class StaffController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:staff'], 
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string'],
             'num_colegiado' => ['required', 'string', 'max:50'],
         ]);
 
@@ -68,7 +76,7 @@ class StaffController extends Controller
             'num_colegiado' => $validated['num_colegiado'],
         ]);
 
-        return redirect()->back()->with('message', 'Personal registrado con éxito.');
+        return redirect('/admin/staff')->with('message', 'Staff registrado con éxito.');
     }
 
     public function create()

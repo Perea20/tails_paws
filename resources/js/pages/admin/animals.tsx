@@ -121,7 +121,7 @@ export default function Animals() {
                                                 : 'bg-white text-neutral-600 dark:bg-neutral-800 hover:bg-neutral-100'
                                         } ${
                                             isArrow 
-                                                ? 'bg-neutral-800 text-white border-neutral-800' // ESTO HACE LAS FLECHAS BLANCAS (sobre fondo oscuro)
+                                                ? 'bg-neutral-800 text-white border-neutral-800'
                                                 : ''
                                         } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >

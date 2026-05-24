@@ -37,5 +37,6 @@ Route::prefix('admin')->middleware(['auth:staff'])->group(function () {
     Route::get('/animals', [PetController::class, 'index'])->name('admin.animals.index');
     Route::get('/staff/create', [StaffController::class, 'createStaff'])->name('admin.staff.create');
     Route::post('/staff', [StaffController::class, 'storeStaff'])->name('admin.staff.store');
+    Route::get('/staff', [StaffController::class, 'index'])->name('admin.staff.index');
     
 });
