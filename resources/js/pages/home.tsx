@@ -104,7 +104,7 @@ export default function Home() {
                         Gestión integral de pacientes, historiales clínicos y citas en tu clínica veterinaria de confianza.
                     </p>
                     <Link 
-                        href={user ? "/agenda" : "/register"} 
+                        href={user ? "/appointments/create" : "/register"} 
                         className="bg-emerald-700 text-white font-bold px-10 py-4 rounded-2xl hover:bg-emerald-800 transition-all hover:scale-105 mb-8 text-lg"
                     >
                         Pedir cita online

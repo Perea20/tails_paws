@@ -3,6 +3,7 @@
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\PetController;
+use App\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -22,6 +23,9 @@ Route::post('/register', [ClientController::class, 'store']);
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ClientController::class, 'profile'])->name('client.profile');
     Route::post('/profile/pet', [ClientController::class, 'storePet'])->name('client.pet.store');
+    Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
+    Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
+    Route::get('/appointments/available-slots', [AppointmentController::class, 'getAvailableSlots']);
 });
 
 // --- ACCESO STAFF (LOGIN / LOGOUT) ---

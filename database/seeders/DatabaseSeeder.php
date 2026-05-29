@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             StaffSeeder::class,
             AnimalCategorySeeder::class,
+            RecordTypesSeeder::class,
         ]);
     }
 }
