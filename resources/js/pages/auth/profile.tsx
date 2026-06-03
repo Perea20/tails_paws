@@ -11,6 +11,8 @@ export default function Profile() {
         animal_category_id: '',
         weight: '',
         height: '',
+        gender: '',
+        birth_date: '', // Se mantiene como string vacío por defecto si no se sabe
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -103,6 +105,31 @@ export default function Profile() {
                                         />
                                     </div>
 
+                                    {/* CAMBIO 1: Select para el Género limitado a Macho o Hembra */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-xs font-medium text-neutral-500">Género</label>
+                                        <select 
+                                            value={data.gender}
+                                            onChange={e => setData('gender', e.target.value)}
+                                            className="w-full px-3.5 py-2 border border-neutral-200 rounded-lg text-sm bg-white text-neutral-800 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all duration-150"
+                                        >
+                                            <option value="">Seleccionar...</option>
+                                            <option value="Macho">Macho</option>
+                                            <option value="Hembra">Hembra</option>
+                                        </select>
+                                    </div>
+
+                                    {/* CAMBIO 2: Input de tipo date (calendario) opcional */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-xs font-medium text-neutral-500">Fecha de nacimiento</label>
+                                        <input 
+                                            type="date" 
+                                            value={data.birth_date}
+                                            onChange={e => setData('birth_date', e.target.value)}
+                                            className="w-full px-3.5 py-2 border border-neutral-200 rounded-lg text-sm bg-white text-neutral-800 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all duration-150 text-left"
+                                        />
+                                    </div>
+
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="flex flex-col gap-1.5">
                                             <label className="text-xs font-medium text-neutral-500">Peso (kg)</label>
@@ -152,6 +179,8 @@ export default function Profile() {
                                             <th className="px-6 py-3.5 font-medium">Nombre</th>
                                             <th className="px-6 py-3.5 font-medium">Especie / Tipo</th>
                                             <th className="px-6 py-3.5 font-medium">Nº Identificador (Chip)</th>
+                                            <th className="px-6 py-3.5 font-medium">Género</th>
+                                            <th className="px-6 py-3.5 font-medium">Fecha de nacimiento</th>
                                             <th className="px-6 py-3.5 font-medium text-right">Métricas</th>
                                         </tr>
                                     </thead>
@@ -166,6 +195,12 @@ export default function Profile() {
                                                 </td>
                                                 <td className="px-6 py-4 font-mono text-xs text-neutral-400">
                                                     {pet.chip_number || '—'}
+                                                </td>
+                                                <td className="px-6 py-4 font-mono text-xs text-neutral-400">
+                                                    {pet.gender || '—'}
+                                                </td>
+                                                <td className="px-6 py-4 font-mono text-xs text-neutral-400">
+                                                    {pet.birth_date || '—'}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-right">
                                                     {pet.weight !== 'N/R' || pet.height !== 'N/R' ? (

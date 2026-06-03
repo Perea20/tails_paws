@@ -72,6 +72,16 @@ export default function Animals() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
+                                                <span className="inline-flex items-center rounded-md bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 capitalize">
+                                                    {animal.gender}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className="inline-flex items-center rounded-md bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 capitalize">
+                                                    {animal.birth_date}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
                                                 <div className="flex flex-col text-xs text-neutral-600 dark:text-neutral-300">
                                                     <span><strong>Peso:</strong> {animal.weight}</span>
                                                     <span><strong>Altura:</strong> {animal.height}</span>

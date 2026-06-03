@@ -22,6 +22,7 @@ Route::post('/register', [ClientController::class, 'store']);
 // --- PARTE PRIVADA (DUEÑOS) ---
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ClientController::class, 'profile'])->name('client.profile');
+    Route::get('/my-appointments', [ClientController::class, 'myAppointments'])->name('client.appointments');
     Route::post('/profile/pet', [ClientController::class, 'storePet'])->name('client.pet.store');
     Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
     Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');

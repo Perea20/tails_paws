@@ -57,7 +57,7 @@ export default function Home() {
                                         <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors font-medium">
                                             Ver mi perfil
                                         </Link>
-                                        <Link href="/agenda" className="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors font-medium">
+                                        <Link href="/my-appointments" className="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors font-medium">
                                             Mis citas
                                         </Link>
                                         <div className="border-t border-gray-100 my-1"></div>

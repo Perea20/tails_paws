@@ -1,5 +1,5 @@
-import { useForm, Head, Link } from '@inertiajs/react';
-import { useState, useEffect, FormEvent } from 'react';
+import { useForm, Head } from '@inertiajs/react';
+import { useState, useEffect, FormEvent, useMemo } from 'react';
 
 interface RecordType {
   id: number;
@@ -19,11 +19,9 @@ interface AppointmentProps {
 export default function Appointment({ recordTypes, pets }: AppointmentProps) {
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
-
-  // Estados para el control del Calendario Visual del Mes
-  const today = new Date();
-  const [currentMonth, setCurrentMonth] = useState<number>(today.getMonth());
-  const [currentYear, setCurrentYear] = useState<number>(today.getFullYear());
+  
+  const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
 
   const { data, setData, post, processing, errors } = useForm({
     pet_id: '',
@@ -32,7 +30,6 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
     time: ''
   });
 
-  // Petición asíncrona de horas libres al cambiar la fecha seleccionada
   useEffect(() => {
     if (!data.date) {
       setAvailableSlots([]);
@@ -43,7 +40,29 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
     fetch(`/appointments/available-slots?date=${data.date}`)
       .then((res) => res.json())
       .then((slots: string[]) => {
-        setAvailableSlots(slots);
+        const today = new Date();
+        const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+        if (data.date === todayString) {
+          const now = new Date();
+          const currentHour = now.getHours();
+          const currentMinute = now.getMinutes();
+
+          const filteredSlots = slots.filter((slot) => {
+            const [slotHourStr, slotMinuteStr] = slot.split(':');
+            const slotHour = parseInt(slotHourStr, 10);
+            const slotMinute = parseInt(slotMinuteStr, 10);
+
+            if (slotHour > currentHour) return true;
+            if (slotHour === currentHour && slotMinute > currentMinute) return true;
+            return false;
+          });
+
+          setAvailableSlots(filteredSlots);
+        } else {
+          setAvailableSlots(slots);
+        }
+        
         setData('time', ''); 
       })
       .catch((err) => console.error('Error al cargar horas disponibles:', err))
@@ -55,83 +74,60 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
     post('/appointments');
   };
 
-  // --- LÓGICA GENERADORA DEL CALENDARIO VISUAL ---
-  const monthsNames = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-  ];
+  const generatedDays = useMemo(() => {
+    const today = new Date();
+    const firstDayIndex = (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7;
+    const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-  const daysOfWeekHeader = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"];
+    const dayButtons = [];
 
-  // Cambiar de mes
-  const handlePrevMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(prev => prev - 1);
-    } else {
-      setCurrentMonth(prev => prev - 1);
+    for (let i = 0; i < firstDayIndex; i++) {
+      dayButtons.push(<div key={`empty-${i}`} />);
     }
-  };
 
-  const handleNextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(prev => prev + 1);
-    } else {
-      setCurrentMonth(prev => prev + 1);
+    for (let day = 1; day <= totalDays; day++) {
+      const currentLoopDate = new Date(currentYear, currentMonth, day);
+      const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      
+      const isSunday = currentLoopDate.getDay() === 0;
+      const compareToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const isDisabled = isSunday || currentLoopDate < compareToday;
+
+      const isSelected = data.date === dateString;
+      const isTodayBtn = today.getDate() === day && today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+
+      dayButtons.push(
+        <button
+          key={`${currentYear}-${currentMonth}-${day}`}
+          type="button"
+          disabled={isDisabled}
+          onClick={() => setData('date', dateString)}
+          className={`h-10 w-full text-sm font-medium rounded-xl transition-colors flex items-center justify-center select-none
+            ${isDisabled ? 'text-gray-200 cursor-not-allowed opacity-40 hover:bg-transparent' : 'text-gray-800 hover:bg-emerald-50 hover:text-emerald-700'}
+            ${isSelected ? '!bg-emerald-700 !text-white font-bold shadow-sm' : ''}
+            ${isTodayBtn && !isSelected ? 'text-emerald-700 font-extrabold underline decoration-2 underline-offset-4' : ''}
+          `}
+        >
+          {day}
+        </button>
+      );
     }
-  };
-
-  // Generar la cuadrícula exacta de días
-  const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
-  // Ajustar índice para que el Lunes sea 0 y Domingo sea 6
-  const startingDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
-  const totalDaysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-  const calendarCells = [];
-  // Rellenar espacios vacíos del mes anterior
-  for (let i = 0; i < startingDay; i++) {
-    calendarCells.push(null);
-  }
-  // Añadir los días reales del mes
-  for (let day = 1; day <= totalDaysInMonth; day++) {
-    calendarCells.push(day);
-  }
-
-  // Comprobar restricciones del día (Pasados y Domingos)
-  const isDateDisabled = (day: number | null) => {
-    if (!day) return true;
-    const cellDate = new Date(currentYear, currentMonth, day);
-    
-    // Resetear horas para comparar limpiamente solo calendarios
-    const cleanToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    
-    // Deshabilitar si es anterior a hoy o si cae en Domingo (0)
-    return cellDate < cleanToday || cellDate.getDay() === 0;
-  };
-
-  const handleDateSelect = (day: number) => {
-    // Formatear a YYYY-MM-DD local
-    const monthString = String(currentMonth + 1).padStart(2, '0');
-    const dayString = String(day).padStart(2, '0');
-    const selectedDateStr = `${currentYear}-${monthString}-${dayString}`;
-    
-    setData('date', selectedDateStr);
-  };
+    return dayButtons;
+  }, [currentMonth, currentYear, data.date]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50/50">
       <Head title="Pedir Cita Online" />
 
       <main className="flex-1 flex items-center justify-center p-4 md:p-8">
-        <div className="w-full max-w-xl bg-white rounded-3xl border border-gray-100 p-6 md:p-8">
+        <div className="w-full max-w-xl bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-sm">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Reserva tu Cita Online</h1>
             <p className="text-gray-500 mt-1 text-sm">Selecciona los datos y tu hueco en el calendario.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            
+
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">¿Para qué mascota es la cita?</label>
               <select
@@ -146,7 +142,6 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
                   <option key={pet.id} value={pet.id}>{pet.name}</option>
                 ))}
               </select>
-              {errors.pet_id && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.pet_id}</p>}
             </div>
 
             <div>
@@ -165,74 +160,63 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
                   </option>
                 ))}
               </select>
-              {errors.record_type_id && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.record_type_id}</p>}
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Selecciona la fecha en el calendario</label>
+            <div className="w-full">
+              <label className="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">
+                Selecciona la fecha de la cita
+              </label>
               
-              <div className="border border-gray-200 rounded-2xl p-4 bg-gray-50/50">
+              <div className="border border-gray-100 rounded-3xl bg-white p-5 shadow-sm text-gray-800">
+
                 <div className="flex items-center justify-between mb-4 px-1">
-                  <span className="text-sm font-bold text-gray-800">
-                    {monthsNames[currentMonth]} {currentYear}
-                  </span>
-                  <div className="flex space-x-1">
-                    <button
-                      type="button"
-                      onClick={handlePrevMonth}
-                      className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-600 transition-colors"
-                    >
-                      &larr;
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleNextMonth}
-                      className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-600 transition-colors"
-                    >
-                      &rarr;
-                    </button>
+                  <button
+                    type="button"
+                    disabled={currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear()}
+                    onClick={() => {
+                      if (currentMonth === 0) {
+                        setCurrentMonth(11);
+                        setCurrentYear(currentYear - 1);
+                      } else {
+                        setCurrentMonth(currentMonth - 1);
+                      }
+                    }}
+                    className="p-2 text-emerald-700 hover:bg-emerald-50 rounded-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-bold text-lg select-none"
+                  >
+                    &lt;
+                  </button>
+
+                  <div className="font-extrabold text-gray-900 capitalize text-base select-none">
+                    {new Date(currentYear, currentMonth)
+                      .toLocaleString('es-ES', { month: 'long', year: 'numeric' })
+                      .replace(' de ', ' ')}
                   </div>
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (currentMonth === 11) {
+                        setCurrentMonth(0);
+                        setCurrentYear(currentYear + 1);
+                      } else {
+                        setCurrentMonth(currentMonth + 1);
+                      }
+                    }}
+                    className="p-2 text-emerald-700 hover:bg-emerald-50 rounded-xl transition-colors font-bold text-lg select-none"
+                  >
+                    &gt;
+                  </button>
                 </div>
 
-                <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-400 mb-2">
-                  {daysOfWeekHeader.map(day => (
-                    <div key={day} className="py-1">{day}</div>
-                  ))}
+                <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-400 uppercase mb-2 select-none">
+                  <div>lu</div><div>ma</div><div>mi</div><div>ju</div><div>vi</div><div>sá</div><div>do</div>
                 </div>
 
                 <div className="grid grid-cols-7 gap-1">
-                  {calendarCells.map((day, index) => {
-                    if (day === null) {
-                      return <div key={`empty-${index}`} />;
-                    }
-
-                    const monthString = String(currentMonth + 1).padStart(2, '0');
-                    const dayString = String(day).padStart(2, '0');
-                    const cellDateStr = `${currentYear}-${monthString}-${dayString}`;
-                    const isSelected = data.date === cellDateStr;
-                    const disabled = isDateDisabled(day);
-
-                    return (
-                      <button
-                        key={`day-${day}`}
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => handleDateSelect(day)}
-                        className={`
-                          py-2.5 text-xs font-semibold rounded-xl transition-all relative
-                          ${isSelected 
-                            ? 'bg-emerald-700 text-white shadow-sm scale-105 z-10' 
-                            : 'text-gray-800 hover:bg-emerald-50 hover:text-emerald-700'
-                          }
-                          ${disabled ? 'opacity-25 cursor-not-allowed hover:bg-transparent hover:text-gray-800' : ''}
-                        `}
-                      >
-                        {day}
-                      </button>
-                    );
-                  })}
+                  {generatedDays}
                 </div>
               </div>
+
               {data.date && (
                 <p className="text-xs text-emerald-700 font-bold mt-2 flex items-center px-1">
                   ✓ Fecha seleccionada: {data.date.split('-').reverse().join('/')}
@@ -242,7 +226,7 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Hora disponible (Intervalos de 30 min)</label>
+              <label className="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Hora disponible</label>
               <select
                 name="time"
                 value={data.time}
@@ -254,9 +238,9 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
                 {loadingSlots ? (
                   <option>Buscando intervalos libres...</option>
                 ) : !data.date ? (
-                  <option>Por favor, selecciona una fecha en el calendario primero</option>
+                  <option>Por favor, selecciona una fecha primero</option>
                 ) : availableSlots.length === 0 ? (
-                  <option>Clínica cerrada o sin cupos para este día</option>
+                  <option>No quedan turnos disponibles para este día</option>
                 ) : (
                   <>
                     <option value="">Selecciona una hora...</option>
@@ -268,7 +252,6 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
                   </>
                 )}
               </select>
-              {errors.time && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.time}</p>}
             </div>
 
             <button

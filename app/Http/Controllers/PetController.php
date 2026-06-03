@@ -19,6 +19,8 @@ class PetController extends Controller
                 'chip_number' => $pet->chip_number ?? 'Sin Chip',
                 'weight' => $pet->weight ?? 'N/R',
                 'height' => $pet->height ?? 'N/R',
+                'gender' => $pet->gender ?? 'N/R',
+                'birth_date' => $pet->birth_date ?? 'N/R',
                 'category' => $pet->category ? $pet->category->name : 'No definida', 
                 'owner' => $pet->client ? [
                     'name' => $pet->client->name . ' ' . $pet->client->lastname,

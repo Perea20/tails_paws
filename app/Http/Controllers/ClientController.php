@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Pet;
 use App\Models\AnimalCategory;
+use App\Models\Appointment;
 use Inertia\Inertia;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -51,6 +53,8 @@ class ClientController extends Controller
                     'id' => $pet->id,
                     'name' => $pet->name,
                     'chip_number' => $pet->chip_number ?? 'Sin registros',
+                    'gender' => $pet->gender ?? '—',
+                    'birth_date' => $pet->birth_date ? Carbon::parse($pet->birth_date)->format('d/m/Y') : '—',
                     'weight' => $pet->weight ? $pet->weight . ' kg' : 'N/R',
                     'height' => $pet->height ? $pet->height . ' cm' : 'N/R',
                     'category' =>$pet->category->name,
@@ -76,6 +80,8 @@ class ClientController extends Controller
             'animal_category_id' => 'required|exists:animal_categories,id',
             'weight' => 'nullable|numeric|min:0',
             'height' => 'nullable|numeric|min:0',
+            'gender' => 'nullable|string|in:Macho,Hembra',
+            'birth_date' => 'nullable|date', 
         ]);
 
         Pet::create([
@@ -85,8 +91,41 @@ class ClientController extends Controller
             'animal_category_id' => $validated['animal_category_id'],
             'weight' => $validated['weight'],
             'height' => $validated['height'],
+            'gender' => $request->gender ?: null,
+            'birth_date' => $request->birth_date ?: null,
         ]);
 
         return redirect()->back()->with('message', '¡Mascota registrada con éxito!');
+    }
+
+    public function myAppointments() 
+    {
+        $client = Auth::user();
+        
+        $today = Carbon::today()->toDateString();
+
+        $appointments = Appointment::whereHas('pet', function ($query) {
+                $query->where('client_id', auth()->id());
+            })
+            ->with(['pet', 'recordType', 'staff'])
+            ->where('date', '>=', $today)
+            ->orderBy('date', 'asc')       
+            ->orderBy('time', 'asc')
+            ->get();
+            
+        $pastAppointments = Appointment::whereHas('pet', function ($query) {
+                $query->where('client_id', auth()->id());
+            })
+            ->with(['pet', 'recordType', 'staff'])
+            ->where('date', '<', $today)
+            ->orderBy('date', 'desc')      
+            ->orderBy('time', 'desc')
+            ->get();
+
+        return Inertia::render('auth/my-appointments', [
+            'client'           => $client,
+            'appointments'     => $appointments,
+            'pastAppointments' => $pastAppointments,
+        ]);
     }
 }

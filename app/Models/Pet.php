@@ -21,6 +21,12 @@ class Pet extends Model
         'name',
         'weight',
         'height',
+        'gender',
+        'birth_date',
+    ];
+
+    protected $casts = [
+        'birth_date' => 'date:Y-m-d',
     ];
 
     public function client()

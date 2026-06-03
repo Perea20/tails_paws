@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('client_id')->constrained('clients')->onDelete('restrict');
             $table->foreignId('animal_category_id')->constrained('animal_categories');
             $table->string('name');
+            $table->string('gender')->nullable();
+            $table->date('birth_date')->nullable();
             $table->decimal('weight', 8, 2)->nullable();
             $table->decimal('height', 8, 2)->nullable();
             $table->timestamps();
