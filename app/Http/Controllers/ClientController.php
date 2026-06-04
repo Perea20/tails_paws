@@ -8,6 +8,7 @@ use App\Models\AnimalCategory;
 use App\Models\Appointment;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -47,8 +48,8 @@ class ClientController extends Controller
 
         $myPets = Pet::where('client_id', $client->id)
             ->with('category')
-            ->get()
-            ->map(function ($pet) {
+            ->paginate(6)
+            ->through(function ($pet) {
                 return [
                     'id' => $pet->id,
                     'name' => $pet->name,
@@ -75,14 +76,27 @@ class ClientController extends Controller
         $client = Auth::user();
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('pets')->where(function ($query) use ($client) {
+                    return $query->where('client_id', $client->id);
+                }),
+            ],
+          
             'chip_number' => 'nullable|string|max:255|unique:pets,chip_number',
             'animal_category_id' => 'required|exists:animal_categories,id',
             'weight' => 'nullable|numeric|min:0',
             'height' => 'nullable|numeric|min:0',
             'gender' => 'nullable|string|in:Macho,Hembra',
             'birth_date' => 'nullable|date', 
+        ], [
+            'name.unique' => 'Ya tienes una mascota registrada con este nombre.',
+            'chip_number.unique' => 'Este número de chip ya está registrado por otro usuario.',
         ]);
+
 
         Pet::create([
             'client_id' => $client->id,

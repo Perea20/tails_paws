@@ -13,6 +13,9 @@ class DatabaseSeeder extends Seeder
             StaffSeeder::class,
             AnimalCategorySeeder::class,
             RecordTypesSeeder::class,
+
+            
         ]);
+        
     }
 }

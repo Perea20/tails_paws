@@ -26,5 +26,6 @@ class StaffSeeder extends Seeder
                 'num_colegiado' => $adminData['num_colegiado'],
             ]
         );
+        Staff::factory()->count(10)->create();
     }
 }

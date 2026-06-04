@@ -2,6 +2,7 @@ import { Head, usePage, useForm, Link } from '@inertiajs/react';
 import React, { useState } from 'react';
 
 export default function Profile() {
+    // Al paginar en Laravel, 'myPets' pasa de ser un Array a ser un Objeto Paginador
     const { client, myPets, categories } = usePage().props as any;
     const [showForm, setShowForm] = useState(false);
 
@@ -12,7 +13,7 @@ export default function Profile() {
         weight: '',
         height: '',
         gender: '',
-        birth_date: '', // Se mantiene como string vacío por defecto si no se sabe
+        birth_date: '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -25,6 +26,9 @@ export default function Profile() {
         });
     };
 
+    // Extraemos los datos reales del paginador (si no existe, por defecto array vacío)
+    const petsList = myPets?.data || [];
+
     return (
         <>
             <Head title="Mi Perfil" />
@@ -32,22 +36,24 @@ export default function Profile() {
             <div className="bg-white min-h-screen text-neutral-800 w-full antialiased selection:bg-emerald-100">
                 <div className="w-full max-w-7xl mx-auto px-6 md:px-12 py-10 space-y-12">
                     
+                    {/* Logo */}
                     <div className="flex justify-center pb-6 border-b border-neutral-100">
                         <Link href="/">
                             <img src="/img/tplogotxt.png" alt="Logo Tails & Paws" className="h-30 w-auto" />
                         </Link>
                     </div>
 
+                    {/* Cabecera Datos del Cliente */}
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end pb-8 border-b border-emerald-100 gap-6">
                         <div className="space-y-2">
                             <h1 className="text-4xl font-extralight tracking-tight text-neutral-900">
                                 Mi Perfil
                             </h1>
                             <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium text-emerald-800/80">
-                                <p><span className="text-neutral-400 font-normal">Propietario: </span> {client.name} {client.lastname}</p>
-                                <p><span className="text-neutral-400 font-normal">Email: </span> {client.email}</p>
-                                <p><span className="text-neutral-400 font-normal">Teléfono: </span> {client.phone || '—'}</p>
-                                <p><span className="text-neutral-400 font-normal">Dirección: </span> {client.address || '—'}</p>
+                                <p><span className="text-neutral-400 font-normal">Propietario: </span> {client?.name} {client?.lastname}</p>
+                                <p><span className="text-neutral-400 font-normal">Email: </span> {client?.email}</p>
+                                <p><span className="text-neutral-400 font-normal">Teléfono: </span> {client?.phone || '—'}</p>
+                                <p><span className="text-neutral-400 font-normal">Dirección: </span> {client?.address || '—'}</p>
                             </div>
                         </div>
 
@@ -59,6 +65,7 @@ export default function Profile() {
                         </button>
                     </div>
 
+                    {/* Formulario de Registro */}
                     {showForm && (
                         <div className="bg-white rounded-xl p-8 border border-emerald-100 shadow-sm max-w-3xl transition-all duration-300 animate-in fade-in slide-in-from-top-4 mx-auto">
                             <div className="mb-6">
@@ -103,9 +110,9 @@ export default function Profile() {
                                             onChange={e => setData('chip_number', e.target.value)}
                                             className="w-full px-3.5 py-2 border border-neutral-200 rounded-lg text-sm bg-white text-neutral-800 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all duration-150"
                                         />
+                                        {errors.chip_number && <span className="text-xs text-red-500">{errors.chip_number}</span>}
                                     </div>
 
-                                    {/* CAMBIO 1: Select para el Género limitado a Macho o Hembra */}
                                     <div className="flex flex-col gap-1.5">
                                         <label className="text-xs font-medium text-neutral-500">Género</label>
                                         <select 
@@ -119,7 +126,6 @@ export default function Profile() {
                                         </select>
                                     </div>
 
-                                    {/* CAMBIO 2: Input de tipo date (calendario) opcional */}
                                     <div className="flex flex-col gap-1.5">
                                         <label className="text-xs font-medium text-neutral-500">Fecha de nacimiento</label>
                                         <input 
@@ -166,56 +172,98 @@ export default function Profile() {
                         </div>
                     )}
 
+                    {/* Sección de la Tabla de Mascotas */}
                     <div className="space-y-4">
                         <h2 className="text-xl font-light tracking-tight text-neutral-900">
                             Mis mascotas registradas
                         </h2>
 
-                        {myPets.length > 0 ? (
-                            <div className="w-full overflow-hidden bg-white border border-emerald-100 rounded-xl shadow-sm">
-                                <table className="w-full text-left text-sm border-collapse">
-                                    <thead>
-                                        <tr className="border-b border-emerald-100 bg-emerald-50/40 text-emerald-800/80 text-xs font-semibold uppercase tracking-wider">
-                                            <th className="px-6 py-3.5 font-medium">Nombre</th>
-                                            <th className="px-6 py-3.5 font-medium">Especie / Tipo</th>
-                                            <th className="px-6 py-3.5 font-medium">Nº Identificador (Chip)</th>
-                                            <th className="px-6 py-3.5 font-medium">Género</th>
-                                            <th className="px-6 py-3.5 font-medium">Fecha de nacimiento</th>
-                                            <th className="px-6 py-3.5 font-medium text-right">Métricas</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-neutral-100 text-neutral-600">
-                                        {myPets.map((pet: any) => (
-                                            <tr key={pet.id} className="hover:bg-emerald-50/10 transition-colors duration-150">
-                                                <td className="px-6 py-4 font-normal text-neutral-950 text-base">
-                                                    {pet.name}
-                                                </td>
-                                                <td className="px-6 py-4 text-xs font-medium uppercase tracking-wider text-neutral-550">
-                                                    {pet.category}
-                                                </td>
-                                                <td className="px-6 py-4 font-mono text-xs text-neutral-400">
-                                                    {pet.chip_number || '—'}
-                                                </td>
-                                                <td className="px-6 py-4 font-mono text-xs text-neutral-400">
-                                                    {pet.gender || '—'}
-                                                </td>
-                                                <td className="px-6 py-4 font-mono text-xs text-neutral-400">
-                                                    {pet.birth_date || '—'}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-right">
-                                                    {pet.weight !== 'N/R' || pet.height !== 'N/R' ? (
-                                                        <div className="flex justify-end gap-x-2 text-xs font-medium">
-                                                            {pet.weight !== 'N/R' && <span className="bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-md">{pet.weight} </span>}
-                                                            {pet.height !== 'N/R' && <span className="bg-neutral-100 text-neutral-700 px-2.5 py-1 rounded-md">{pet.height} </span>}
-                                                        </div>
-                                                    ) : (
-                                                        <span className="text-neutral-300">—</span>
-                                                    )}
-                                                </td>
+                        {petsList.length > 0 ? (
+                            <div className="space-y-4">
+                                <div className="w-full overflow-hidden bg-white border border-emerald-100 rounded-xl shadow-sm">
+                                    <table className="w-full text-left text-sm border-collapse">
+                                        <thead>
+                                            <tr className="border-b border-emerald-100 bg-emerald-50/40 text-emerald-800/80 text-xs font-semibold uppercase tracking-wider">
+                                                <th className="px-6 py-3.5 font-medium">Nombre</th>
+                                                <th className="px-6 py-3.5 font-medium">Especie / Tipo</th>
+                                                <th className="px-6 py-3.5 font-medium">Nº Identificador (Chip)</th>
+                                                <th className="px-6 py-3.5 font-medium">Género</th>
+                                                <th className="px-6 py-3.5 font-medium">Fecha de nacimiento</th>
+                                                <th className="px-6 py-3.5 font-medium text-right">Métricas</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody className="divide-y divide-neutral-100 text-neutral-600">
+                                            {petsList.map((pet: any) => (
+                                                <tr key={pet.id} className="hover:bg-emerald-50/10 transition-colors duration-150">
+                                                    <td className="px-6 py-4 font-normal text-neutral-950 text-base">
+                                                        {pet.name}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-xs font-medium uppercase tracking-wider text-neutral-550">
+                                                        {pet.category || pet.animal_category?.name || '—'}
+                                                    </td>
+                                                    <td className="px-6 py-4 font-mono text-xs text-neutral-400">
+                                                        {pet.chip_number || '—'}
+                                                    </td>
+                                                    <td className="px-6 py-4 font-mono text-xs text-neutral-400">
+                                                        {pet.gender || '—'}
+                                                    </td>
+                                                    <td className="px-6 py-4 font-mono text-xs text-neutral-400">
+                                                        {pet.birth_date || '—'}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-right">
+                                                        {(pet.weight && pet.weight !== 'N/R') || (pet.height && pet.height !== 'N/R') ? (
+                                                            <div className="flex justify-end gap-x-2 text-xs font-medium">
+                                                                {pet.weight && pet.weight !== 'N/R' && <span className="bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-md">{pet.weight}</span>}
+                                                                {pet.height && pet.height !== 'N/R' && <span className="bg-neutral-100 text-neutral-700 px-2.5 py-1 rounded-md">{pet.height}</span>}
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-neutral-300">—</span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Paginación limpia con flechas corregidas */}
+                                {myPets && myPets.last_page > 1 && (
+                                    <div className="flex justify-center items-center gap-1 pt-2">
+                                        {myPets.links.map((link: any, index: number) => {
+                                            if (!link.url && link.label === "...") {
+                                                return <span key={index} className="px-3 py-1.5 text-neutral-400 text-xs">...</span>;
+                                            }
+                                            
+                                            // Determinamos dinámicamente si es el botón atrás o adelante basándonos en la posición
+                                            let cleanLabel = link.label;
+                                            if (index === 0) {
+                                                cleanLabel = '←';
+                                            } else if (index === myPets.links.length - 1) {
+                                                cleanLabel = '→';
+                                            }
+
+                                            return link.url ? (
+                                                <Link
+                                                    key={index}
+                                                    href={link.url}
+                                                    preserveScroll
+                                                    className={`px-3 py-1.5 text-xs rounded-md transition-all duration-150 font-medium border ${
+                                                        link.active
+                                                            ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm'
+                                                            : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+                                                    }`}
+                                                    dangerouslySetInnerHTML={{ __html: cleanLabel }}
+                                                />
+                                            ) : (
+                                                <span
+                                                    key={index}
+                                                    className="px-3 py-1.5 text-xs rounded-md text-neutral-300 border border-neutral-100 bg-neutral-50/50 cursor-not-allowed"
+                                                    dangerouslySetInnerHTML={{ __html: cleanLabel }}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="py-16 text-center border border-dashed border-emerald-200 bg-white rounded-xl">
