@@ -1,16 +1,35 @@
-import { Head, usePage, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, usePage, Link, router } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 
 export default function Animals() {
-    const { animals } = usePage().props as any;
-    const list = animals?.data || [];
+    const { animals, auth } = usePage().props as any;
     
-    const [search, setSearch] = useState('');
-    const filteredAnimals = list.filter((animal: any) => 
-        animal.name.toLowerCase().includes(search.toLowerCase()) ||
-        animal.chip_number.toLowerCase().includes(search.toLowerCase()) ||
-        animal.owner?.name?.toLowerCase().includes(search.toLowerCase())
-    ) || [];
+    const urlParams = new URLSearchParams(window.location.search);
+    const [search, setSearch] = useState(urlParams.get('search') || '');
+
+    const pagination = animals || {};
+    const list = animals?.data || [];
+
+    const isClinicAccount = auth?.user?.email === 'tailspawsclinic@gmail.com';
+
+    useEffect(() => {
+        const delayDebounce = setTimeout(() => {
+            router.get(
+                '/admin/animals',
+                { 
+                    search: search,
+                    page: 1 
+                },
+                {
+                    preserveState: true,
+                    replace: true,
+                    only: ['animals'], 
+                }
+            );
+        }, 250);
+
+        return () => clearTimeout(delayDebounce);
+    }, [search]);
 
     return (
         <>
@@ -26,15 +45,31 @@ export default function Animals() {
                             Listado completo de animales registrados, chips y medidas corporales.
                         </p>
                     </div>
-                    
-                    <div className="relative max-w-xs w-full">
-                        <input
-                            type="text"
-                            placeholder="Buscar animal, chip o dueño..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm text-neutral-800 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
-                        />
+
+                    {/* Contenedor de acciones: se expande a lo ancho y empuja los elementos hacia el extremo derecho */}
+                    <div className="flex flex-col sm:flex-row gap-3 items-center w-full sm:flex-1 sm:justify-end">
+                        {/* El buscador ahora crece de forma flexible hasta un máximo de mediano (max-w-md) */}
+                        <div className="relative w-full sm:flex-1 sm:max-w-md">
+                            <input
+                                type="text"
+                                placeholder="Buscar animal, chip o dueño..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm text-neutral-800 placeholder-neutral-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+                            />
+                        </div>
+
+                        {isClinicAccount && (
+                            <Link
+                                href="/admin/owners/create" 
+                                className="inline-flex w-full sm:w-auto h-[38px] whitespace-nowrap justify-center items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+                                    <path fillRule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clipRule="evenodd" />
+                                </svg>
+                                Nueva alta
+                            </Link>
+                        )}
                     </div>
                 </div>
 
@@ -54,8 +89,8 @@ export default function Animals() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
-                                {filteredAnimals.length > 0 ? (
-                                    filteredAnimals.map((animal: any) => (
+                                {list.length > 0 ? (
+                                    list.map((animal: any) => (
                                         <tr key={animal.id} className="hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30 transition-colors">
                                             <td className="px-6 py-4 font-medium text-neutral-900 dark:text-neutral-100">
                                                 <div className="flex items-center gap-3">
@@ -113,7 +148,6 @@ export default function Animals() {
                                     ))
                                 ) : (
                                     <tr>
-                                        {/* Ahora abarca las 8 columnas reales para que no se descuadre */}
                                         <td colSpan={8} className="px-6 py-12 text-center text-sm text-neutral-400 italic">
                                             No se encontraron animales registrados.
                                         </td>
@@ -121,35 +155,40 @@ export default function Animals() {
                                 )}
                             </tbody>
                         </table>
-                        
-                        <div className="flex justify-center gap-2 p-4">
-                            {animals.links.map((link: any, index: number) => {
-                                let label = link.label;
-                                const isArrow = index === 0 || index === animals.links.length - 1;
-                                
-                                if (index === 0) label = '<';
-                                if (index === animals.links.length - 1) label = '>';
+                    </div>
 
-                                return (
+                    {pagination.links && pagination.links.length > 3 && (
+                        <div className="flex justify-center gap-1 p-4 border-t border-neutral-100 dark:border-neutral-800">
+                            {pagination.links.map((link: any, index: number) => {
+                                let label = link.label;
+                                
+                                if (index === 0) label = '←';
+                                if (index === pagination.links.length - 1) label = '→';
+
+                                return link.url ? (
                                     <Link
                                         key={index}
-                                        href={link.url || '#'}
-                                        className={`px-3 py-1 border rounded text-xs transition-colors flex items-center justify-center ${
+                                        href={link.url}
+                                        className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                                             link.active 
-                                                ? 'bg-neutral-800 text-white dark:bg-neutral-100 dark:text-neutral-900' 
-                                                : 'bg-white text-neutral-600 dark:bg-neutral-800 hover:bg-neutral-100'
-                                        } ${
-                                            isArrow 
-                                                ? 'bg-neutral-800 text-white border-neutral-800'
-                                                : ''
-                                        } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                ? 'bg-emerald-600 text-white' 
+                                                : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800'
+                                        }`}
+                                        preserveState
                                     >
                                         {label}
                                     </Link>
+                                ) : (
+                                    <span
+                                        key={index}
+                                        className="px-3 py-1.5 rounded-md text-xs font-medium text-neutral-300 dark:text-neutral-600 cursor-not-allowed"
+                                    >
+                                        {label}
+                                    </span>
                                 );
                             })}
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </>

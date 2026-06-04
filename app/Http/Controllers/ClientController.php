@@ -115,26 +115,45 @@ class ClientController extends Controller
     public function myAppointments() 
     {
         $client = Auth::user();
-        
-        $today = Carbon::today()->toDateString();
+        $now = Carbon::now();
 
         $appointments = Appointment::whereHas('pet', function ($query) {
                 $query->where('client_id', auth()->id());
             })
-            ->with(['pet', 'recordType', 'staff'])
-            ->where('date', '>=', $today)
-            ->orderBy('date', 'asc')       
+            ->with(['pet', 'recordType', 'staff']) 
+            ->where(function ($query) use ($now) {
+                $query->where('date', '>', $now->toDateString())
+                      ->orWhere(function ($q) use ($now) {
+                          $q->where('date', $now->toDateString())
+                            ->where('time', '>=', $now->toTimeString());
+                      });
+            })
+            ->orderBy('date', 'asc')      
             ->orderBy('time', 'asc')
-            ->get();
-            
+            ->get()
+            ->map(function ($app) { 
+                $app->record_type = $app->recordType;
+                return $app;
+            });
+
         $pastAppointments = Appointment::whereHas('pet', function ($query) {
                 $query->where('client_id', auth()->id());
             })
-            ->with(['pet', 'recordType', 'staff'])
-            ->where('date', '<', $today)
+            ->with(['pet', 'recordType', 'staff']) 
+            ->where(function ($query) use ($now) {
+                $query->where('date', '<', $now->toDateString())
+                      ->orWhere(function ($q) use ($now) {
+                          $q->where('date', $now->toDateString())
+                            ->where('time', '<', $now->toTimeString());
+                      });
+            })
             ->orderBy('date', 'desc')      
             ->orderBy('time', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($app) {
+                $app->record_type = $app->recordType;
+                return $app;
+            });
 
         return Inertia::render('auth/my-appointments', [
             'client'           => $client,

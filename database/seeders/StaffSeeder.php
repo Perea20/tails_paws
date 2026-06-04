@@ -11,9 +11,15 @@ class StaffSeeder extends Seeder
     public function run(): void
     {
         $adminData = config('staff.admin_credentials');
+        $receptionData = config('staff.reception_credentials');
 
         if (!$adminData['email'] || !$adminData['password']) {
-            $this->command->error('Error: Credenciales incompletas en el .env');
+            $this->command->error('Error: Credenciales de Administrador incompletas en el .env');
+            return;
+        }
+
+        if (!$receptionData['email'] || !$receptionData['password']) {
+            $this->command->error('Error: Credenciales de Recepción incompletas en el .env');
             return;
         }
 
@@ -26,6 +32,18 @@ class StaffSeeder extends Seeder
                 'num_colegiado' => $adminData['num_colegiado'],
             ]
         );
+
+        Staff::updateOrCreate(
+            ['email' => $receptionData['email']], 
+            [
+                'name'          => $receptionData['name'],
+                'lastname'      => $receptionData['lastname'],
+                'password'      => Hash::make($receptionData['password']),
+                'num_colegiado' => $receptionData['num_colegiado'],
+            ]
+        );
+
+        // Tus 10 usuarios aleatorios de prueba
         Staff::factory()->count(10)->create();
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\PetController;
 use App\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\NewPasswordController;
 
 // --- PARTE PÚBLICA (CLIENTES) ---
 Route::get('/', function () {
@@ -18,6 +19,9 @@ Route::get('/register', function () {
 
 Route::post('/register', [ClientController::class, 'store']);
 
+// --- RESET DE CONTRASEÑAS ---
+Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 
 // --- PARTE PRIVADA (DUEÑOS) ---
 Route::middleware(['auth'])->group(function () {
@@ -40,8 +44,11 @@ Route::prefix('admin')->middleware(['auth:staff'])->group(function () {
     
     Route::get('/dashboard', [StaffController::class, 'dashboard'])->name('dashboard');
     Route::get('/animals', [PetController::class, 'index'])->name('admin.animals.index');
+    Route::get('/animals/create', [PetController::class, 'create'])->name('admin.animals.create'); 
+    Route::post('/animals', [PetController::class, 'store'])->name('admin.animals.store');       
     Route::get('/staff/create', [StaffController::class, 'createStaff'])->name('admin.staff.create');
     Route::post('/staff', [StaffController::class, 'storeStaff'])->name('admin.staff.store');
     Route::get('/staff', [StaffController::class, 'index'])->name('admin.staff.index');
-    
+    Route::get('/owners/create', [StaffController::class, 'createOwner'])->name('admin.owners.create');
+    Route::post('/owners', [StaffController::class, 'storeOwner'])->name('admin.owners.store');
 });
