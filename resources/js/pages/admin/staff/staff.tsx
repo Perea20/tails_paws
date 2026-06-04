@@ -2,16 +2,18 @@ import { Head, usePage, Link } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function Staff() {
-    // Obtenemos los trabajadores y el usuario autenticado
     const { staff, auth } = usePage().props as any;
+    
+    const pagination = staff || {};
     const list = staff?.data || [];
     const user = auth?.user;
 
     const [search, setSearch] = useState('');
-    const filteredStaff = list.filter((staff: any) => 
-        staff.name.toLowerCase().includes(search.toLowerCase()) ||
-        staff.email.toLowerCase().includes(search.toLowerCase()) ||
-        staff.role.toLowerCase().includes(search.toLowerCase())
+    
+    const filteredStaff = list.filter((item: any) => 
+        item.name.toLowerCase().includes(search.toLowerCase()) ||
+        item.email.toLowerCase().includes(search.toLowerCase()) ||
+        (item.role && item.role.toLowerCase().includes(search.toLowerCase()))
     );
 
     return (
@@ -58,35 +60,81 @@ export default function Staff() {
                                     <th className="px-6 py-4">Nombre</th>
                                     <th className="px-6 py-4">Apellido</th>
                                     <th className="px-6 py-4">Email</th>
-                                    <th className="px-3 py-4">Nº de Colegiado</th>
+                                    <th className="px-6 py-4">Nº de Colegiado</th>
                                     <th className="px-6 py-4">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
-                                {filteredStaff.map((staff: any) => (
-                                    <tr key={staff.id} className="hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30 transition-colors">
-                                        <td className="px-6 py-4 font-medium text-neutral-900 dark:text-neutral-100">
-                                            {staff.name}
-                                        </td>
-                                        <td className="px-6 py-4 font-medium text-neutral-900 dark:text-neutral-100">
-                                            {staff.lastname}
-                                        </td>
-                                        <td className="px-6 py-4 font-medium text-neutral-900 dark:text-neutral-100">
-                                            {staff.email}
-                                        </td>
-                                        <td className="px-6 py-4 font-medium text-neutral-900 dark:text-neutral-100">
-                                            {staff.num_colegiado}
-                                        </td>
-                                        <td>
-                                            <button className="text-emerald-600 hover:text-emerald-800 text-xs font-medium">
+                                {filteredStaff.length > 0 ? (
+                                    filteredStaff.map((item: any) => (
+                                        <tr key={item.id} className="hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30 transition-colors">
+                                            <td className="px-6 py-4 font-medium text-neutral-900 dark:text-neutral-100">
+                                                {item.name}
+                                            </td>
+                                            <td className="px-6 py-4 font-medium text-neutral-900 dark:text-neutral-100">
+                                                {item.lastname}
+                                            </td>
+                                            <td className="px-6 py-4 font-medium text-neutral-900 dark:text-neutral-100">
+                                                {item.email}
+                                            </td>
+                                            <td className="px-6 py-4 font-medium text-neutral-900 dark:text-neutral-100">
+                                                {item.num_colegiado}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <button className="text-emerald-600 hover:text-emerald-800 text-xs font-medium">
                                                     Editar
-                                            </button>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={5} className="px-6 py-8 text-center text-sm text-neutral-400 italic">
+                                            No se han encontrado resultados.
                                         </td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     </div>
+
+                    {pagination.links && pagination.links.length > 3 && (
+                        <div className="flex items-center justify-center border-t border-neutral-100 bg-white px-6 py-4 dark:border-neutral-800 dark:bg-neutral-900">
+                            <div className="flex gap-1">
+                                {pagination.links.map((link: any, index: number) => {
+                                    let label = link.label;
+                                    
+                                    if (index === 0) {
+                                        label = '←';
+                                    } else if (index === pagination.links.length - 1) {
+                                        label = '→';
+                                    }
+
+                                    return link.url ? (
+                                        <Link
+                                            key={index}
+                                            href={link.url}
+                                            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                                                link.active
+                                                    ? 'bg-emerald-600 text-white'
+                                                    : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800'
+                                            }`}
+                                            data={{ search }}
+                                        >
+                                            {label}
+                                        </Link>
+                                    ) : (
+                                        <span
+                                            key={index}
+                                            className="cursor-not-allowed rounded-md px-3 py-1.5 text-xs font-medium text-neutral-300 dark:text-neutral-600"
+                                        >
+                                            {label}
+                                        </span>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </>

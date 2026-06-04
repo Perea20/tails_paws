@@ -9,12 +9,13 @@ use Inertia\Inertia;
 use Illuminate\Validation\ValidationException;
 use App\Models\Appointment; 
 use App\Models\Staff; 
+use App\Models\Pet; 
+use Carbon\Carbon;
+
 class StaffController extends Controller
 {
-
     public function index()
     {
-        
         return Inertia::render('admin/staff/staff', [
             'staff' => Staff::paginate(10),
         ]);
@@ -28,25 +29,62 @@ class StaffController extends Controller
             return redirect()->route('admin.login');
         }
 
+        // 1. Obtenemos las citas con sus relaciones correspondientes
         if ($user->email === 'admin@admin.com') {
-            $appointments = Appointment::with('pet')
+            $appointments = Appointment::with(['pet', 'client', 'staff'])
                 ->orderBy('date', 'asc')
+                ->orderBy('time', 'asc')
                 ->get();
         } else {
-
-            $appointments = Appointment::with('pet')
+            $appointments = Appointment::with(['pet', 'client', 'staff'])
                 ->where('staff_id', $user->id) 
                 ->orderBy('date', 'asc')
+                ->orderBy('time', 'asc')
                 ->get();
         }
 
+        $proximasCitasCount = 0;
+        $citasPasadasCount = 0;
+
+        // 2. Clasificación utilizando métodos semánticos de Carbon
+        foreach ($appointments as $app) {
+            // Creamos un objeto Carbon combinando la fecha y hora de la base de datos
+            $appointmentDateTime = Carbon::parse($app->date . ' ' . $app->time);
+
+            // isPast() determina con precisión si la fecha y hora de la cita ya han pasado respecto al instante actual
+            if ($appointmentDateTime->isPast()) {
+                $citasPasadasCount++;
+            } else {
+                $proximasCitasCount++;
+            }
+        }
+
+        $pacientesNuevosCount = Pet::where('created_at', '>=', now()->subDays(7))->count();
+
+        $recentActivity = $appointments->take(5)->map(function($app) {
+            return [
+                'id' => $app->id,
+                'pet_name' => $app->pet?->name ?? 'Mascota',
+                'client_name' => $app->client?->name ?? 'Cliente',
+                'staff_name' => $app->staff ? 'Dr/a. ' . $app->staff->name . ' ' . $app->staff->lastname : 'Sin asignar',
+                'date' => Carbon::parse($app->date . ' ' . $app->time)->format('d/m/Y H:i'), 
+                'reason' => $app->reason ?? 'Consulta general',
+            ];
+        });
+
         return Inertia::render('admin/dashboard', [
-            'appointments' => $appointments
+            'appointments' => $appointments,
+            'stats' => [
+                'proximas_citas' => $proximasCitasCount,
+                'pacientes_nuevos' => $pacientesNuevosCount,
+                'tareas_pendientes' => $citasPasadasCount, 
+            ],
+            'recentActivity' => $recentActivity
         ]);
     }
+
     public function createStaff()
     {
-
         if (Auth::guard('staff')->user()->email !== 'admin@admin.com') {
             abort(403, 'No tienes permisos para registrar nuevo personal.');
         }

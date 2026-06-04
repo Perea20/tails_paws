@@ -46,6 +46,8 @@ export default function Animals() {
                                     <th className="px-6 py-4 font-semibold">Animal</th>
                                     <th className="px-6 py-4 font-semibold">Nº Chip</th>
                                     <th className="px-6 py-4 font-semibold">Categoría</th>
+                                    <th className="px-6 py-4 font-semibold">Género</th>
+                                    <th className="px-6 py-4 font-semibold">Edad</th>
                                     <th className="px-6 py-4 font-semibold">Peso / Altura</th>
                                     <th className="px-6 py-4 font-semibold">Propietario</th>
                                     <th className="px-6 py-4 font-semibold text-right">Acciones</th>
@@ -63,30 +65,34 @@ export default function Animals() {
                                                     <span className="text-base font-semibold">{animal.name}</span>
                                                 </div>
                                             </td>
+
                                             <td className="px-6 py-4 font-mono text-xs tracking-wider text-neutral-700 dark:text-neutral-300">
                                                 {animal.chip_number}
                                             </td>
+
                                             <td className="px-6 py-4">
                                                 <span className="inline-flex items-center rounded-md bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 capitalize">
                                                     {animal.category}
                                                 </span>
                                             </td>
+
                                             <td className="px-6 py-4">
                                                 <span className="inline-flex items-center rounded-md bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 capitalize">
                                                     {animal.gender}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <span className="inline-flex items-center rounded-md bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 capitalize">
-                                                    {animal.birth_date}
-                                                </span>
+
+                                            <td className="px-6 py-4 text-xs text-neutral-700 dark:text-neutral-300">
+                                                {animal.age}
                                             </td>
+
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col text-xs text-neutral-600 dark:text-neutral-300">
                                                     <span><strong>Peso:</strong> {animal.weight}</span>
                                                     <span><strong>Altura:</strong> {animal.height}</span>
                                                 </div>
                                             </td>
+
                                             <td className="px-6 py-4">
                                                 {animal.owner ? (
                                                     <div className="flex flex-col">
@@ -97,23 +103,26 @@ export default function Animals() {
                                                     <span className="text-xs italic text-amber-500">Sin dueño asignado</span>
                                                 )}
                                             </td>
+
                                             <td className="px-6 py-4 text-right">
                                                 <button className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800">
-                                                    Ver historial
+                                                    Ver ficha
                                                 </button>
                                             </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={6} className="px-6 py-12 text-center text-sm text-neutral-400 italic">
+                                        {/* Ahora abarca las 8 columnas reales para que no se descuadre */}
+                                        <td colSpan={8} className="px-6 py-12 text-center text-sm text-neutral-400 italic">
                                             No se encontraron animales registrados.
                                         </td>
                                     </tr>
                                 )}
                             </tbody>
                         </table>
-                       <div className="flex justify-center gap-2 p-4">
+                        
+                        <div className="flex justify-center gap-2 p-4">
                             {animals.links.map((link: any, index: number) => {
                                 let label = link.label;
                                 const isArrow = index === 0 || index === animals.links.length - 1;
