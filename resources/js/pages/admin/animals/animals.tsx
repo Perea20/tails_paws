@@ -46,9 +46,7 @@ export default function Animals() {
                         </p>
                     </div>
 
-                    {/* Contenedor de acciones: se expande a lo ancho y empuja los elementos hacia el extremo derecho */}
                     <div className="flex flex-col sm:flex-row gap-3 items-center w-full sm:flex-1 sm:justify-end">
-                        {/* El buscador ahora crece de forma flexible hasta un máximo de mediano (max-w-md) */}
                         <div className="relative w-full sm:flex-1 sm:max-w-md">
                             <input
                                 type="text"
@@ -140,9 +138,12 @@ export default function Animals() {
                                             </td>
 
                                             <td className="px-6 py-4 text-right">
-                                                <button className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800">
+                                                <Link 
+                                                    href={`/admin/animals/${animal.id}/edit`}
+                                                    className="inline-flex items-center rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 transition-colors"
+                                                >
                                                     Ver ficha
-                                                </button>
+                                                </Link>
                                             </td>
                                         </tr>
                                     ))

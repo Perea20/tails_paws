@@ -17,7 +17,10 @@ return new class extends Migration
             $table->string('lastname');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('num_colegiado');
+            $table->enum('role', ['admin', 'reception', 'veterinarian'])->default('veterinarian');
+            $table->string('num_colegiado')->nullable();
+            $table->enum('shift', ['morning', 'afternoon'])->nullable();
+            
             $table->timestamps();
         });
     }
@@ -27,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('staff');
     }
 };

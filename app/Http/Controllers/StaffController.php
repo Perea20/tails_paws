@@ -49,10 +49,8 @@ class StaffController extends Controller
             'password' => Hash::make(Str::random(32)), 
         ]);
 
-        // SEGURO: Generamos el token real y lo guardamos automáticamente en la BD
         $token = Password::getRepository()->create($client);
 
-        // SEGURO: Creamos la URL oficial y limpia que espera el NewPasswordController
         $activationUrl = route('password.reset', [
             'token' => $token,
             'email' => $client->email
@@ -130,26 +128,41 @@ class StaffController extends Controller
         return Inertia::render('admin/staff/create');
     }
 
+    /**
+     * PROCESO DE GUARDADO CON ROLES Y TURNOS DINÁMICOS
+     */
     public function storeStaff(Request $request)
     {
         if (Auth::guard('staff')->user()->email !== 'admin@admin.com') {
             abort(403, 'No tienes permisos para realizar esta acción.');
         }
 
+        // Validación dinámica condicional
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:staff'], 
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:staff,email'], 
             'password' => ['required', 'string'],
-            'num_colegiado' => ['required', 'string', 'max:50'],
+            'role' => ['required', 'in:admin,reception,veterinarian'],
+            // Si el rol es veterinario, el número de colegiado y el turno pasan a ser estrictamente obligatorios
+            'num_colegiado' => [$request->role === 'veterinarian' ? 'required' : 'nullable', 'string', 'max:50'],
+            'shift' => [$request->role === 'veterinarian' ? 'required' : 'nullable', 'in:morning,afternoon'],
         ]);
+
+        // Si el rol NO es veterinario, nos aseguramos de limpiar los campos para la BD
+        if ($validated['role'] !== 'veterinarian') {
+            $validated['num_colegiado'] = null;
+            $validated['shift'] = null;
+        }
 
         Staff::create([
             'name' => $validated['name'],
             'lastname' => $validated['lastname'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'role' => $validated['role'],
             'num_colegiado' => $validated['num_colegiado'],
+            'shift' => $validated['shift'],
         ]);
 
         return redirect('/admin/staff')->with('message', 'Staff registrado con éxito.');
@@ -174,10 +187,8 @@ class StaffController extends Controller
 
         $client = Client::create($validated);
 
-        // SEGURO: Generamos el token real y lo guardamos automáticamente en la BD
         $token = Password::getRepository()->create($client);
 
-        // SEGURO: Creamos la URL oficial y limpia que espera el NewPasswordController
         $activationUrl = route('password.reset', [
             'token' => $token,
             'email' => $client->email

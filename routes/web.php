@@ -38,7 +38,6 @@ Route::get('/admin/login', [StaffController::class, 'create'])->name('admin.logi
 Route::post('/admin/login', [StaffController::class, 'store']);
 Route::post('/admin/logout', [StaffController::class, 'destroy'])->name('admin.logout');
 
-
 // --- PARTE PRIVADA (STAFF) ---
 Route::prefix('admin')->middleware(['auth:staff'])->group(function () {
     
@@ -46,6 +45,8 @@ Route::prefix('admin')->middleware(['auth:staff'])->group(function () {
     Route::get('/animals', [PetController::class, 'index'])->name('admin.animals.index');
     Route::get('/animals/create', [PetController::class, 'create'])->name('admin.animals.create'); 
     Route::post('/animals', [PetController::class, 'store'])->name('admin.animals.store');       
+    Route::get('/animals/{pet}/edit', [PetController::class, 'edit'])->name('admin.animals.edit');
+    Route::put('/animals/{pet}', [PetController::class, 'update'])->name('admin.animals.update');
     Route::get('/staff/create', [StaffController::class, 'createStaff'])->name('admin.staff.create');
     Route::post('/staff', [StaffController::class, 'storeStaff'])->name('admin.staff.store');
     Route::get('/staff', [StaffController::class, 'index'])->name('admin.staff.index');

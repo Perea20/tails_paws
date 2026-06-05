@@ -11,14 +11,14 @@
 <body>
     <div class="container">
         <h2>¡Hola, {{ $client->name }}!</h2>
-        <p>Te hemos dado de alta en el sistema de la clínica veterinaria <strong>Taws & Paws</strong>.</p>
+        <p>Te hemos dado de alta en el sistema de la clínica veterinaria <strong>Tails & Paws</strong>.</p>
         <p>Para poder gestionar las citas de tus mascotas y ver su historial, necesitas activar tu cuenta estableciendo tu contraseña privada haciendo clic en el siguiente botón:</p>
         
         <p style="margin: 30px 0;">
             <a href="{{ $activationUrl }}" class="button" style="color: white;">Configurar mi Contraseña</a>
         </p>
 
-        <p>Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
+        <p>Si el botón no funciona, copia y pega, o haz click en este enlace:</p>
         <p style="font-size: 12px; color: #666;">{{ $activationUrl }}</p>
 
         <hr style="border: none; border-top: 1px solid #eee; margin-top: 40px;">

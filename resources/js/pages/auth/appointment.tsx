@@ -16,9 +16,15 @@ interface AppointmentProps {
   pets: Pet[];
 }
 
+interface SlotsResponse {
+  slots: string[];
+  hasDuplicate: boolean;
+}
+
 export default function Appointment({ recordTypes, pets }: AppointmentProps) {
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
+  const [isDuplicate, setIsDuplicate] = useState<boolean>(false);
   
   const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
@@ -33,13 +39,22 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
   useEffect(() => {
     if (!data.date) {
       setAvailableSlots([]);
+      setIsDuplicate(false);
       return;
     }
 
     setLoadingSlots(true);
-    fetch(`/appointments/available-slots?date=${data.date}`)
+    fetch(`/appointments/available-slots?date=${data.date}&pet_id=${data.pet_id}`)
       .then((res) => res.json())
-      .then((slots: string[]) => {
+      .then((res: SlotsResponse) => {
+        setIsDuplicate(res.hasDuplicate);
+
+        if (res.hasDuplicate) {
+          setAvailableSlots([]);
+          setData('time', '');
+          return;
+        }
+
         const today = new Date();
         const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
@@ -48,7 +63,7 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
           const currentHour = now.getHours();
           const currentMinute = now.getMinutes();
 
-          const filteredSlots = slots.filter((slot) => {
+          const filteredSlots = res.slots.filter((slot) => {
             const [slotHourStr, slotMinuteStr] = slot.split(':');
             const slotHour = parseInt(slotHourStr, 10);
             const slotMinute = parseInt(slotMinuteStr, 10);
@@ -60,17 +75,18 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
 
           setAvailableSlots(filteredSlots);
         } else {
-          setAvailableSlots(slots);
+          setAvailableSlots(res.slots);
         }
         
         setData('time', ''); 
       })
       .catch((err) => console.error('Error al cargar horas disponibles:', err))
       .finally(() => setLoadingSlots(false));
-  }, [data.date]);
+  }, [data.date, data.pet_id]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    if (isDuplicate) return;
     post('/appointments');
   };
 
@@ -117,12 +133,12 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50/50">
-      <Head title="Pedir Cita Online" />
+      <Head title="Pedir cita online" />
 
       <main className="flex-1 flex items-center justify-center p-4 md:p-8">
         <div className="w-full max-w-xl bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-sm">
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Reserva tu Cita Online</h1>
+            <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Reserva tu cita online</h1>
             <p className="text-gray-500 mt-1 text-sm">Selecciona los datos y tu hueco en el calendario.</p>
           </div>
 
@@ -142,6 +158,7 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
                   <option key={pet.id} value={pet.id}>{pet.name}</option>
                 ))}
               </select>
+              {errors.pet_id && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.pet_id}</p>}
             </div>
 
             <div>
@@ -231,7 +248,7 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
                 name="time"
                 value={data.time}
                 onChange={(e) => setData('time', e.target.value)}
-                disabled={!data.date || loadingSlots}
+                disabled={!data.date || loadingSlots || isDuplicate}
                 required
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:border-emerald-500 focus:bg-white transition-colors text-gray-900 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
               >
@@ -239,6 +256,8 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
                   <option>Buscando intervalos libres...</option>
                 ) : !data.date ? (
                   <option>Por favor, selecciona una fecha primero</option>
+                ) : isDuplicate ? (
+                  <option>No disponible por cita existente</option>
                 ) : availableSlots.length === 0 ? (
                   <option>No quedan turnos disponibles para este día</option>
                 ) : (
@@ -252,11 +271,18 @@ export default function Appointment({ recordTypes, pets }: AppointmentProps) {
                   </>
                 )}
               </select>
+              {errors.time && <p className="text-red-500 text-xs mt-1 font-semibold">{errors.time}</p>}
             </div>
+
+            {isDuplicate && (
+              <div className="p-3 text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-xl font-medium" role="alert">
+                Ya tienes una cita este día con este animal.
+              </div>
+            )}
 
             <button
               type="submit"
-              disabled={processing || !data.time || !data.date}
+              disabled={processing || !data.time || !data.date || isDuplicate}
               className="w-full bg-emerald-700 text-white font-bold py-3.5 rounded-xl hover:bg-emerald-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2 shadow-sm text-sm"
             >
               {processing ? 'Procesando tu Reserva...' : 'Confirmar Cita Online'}

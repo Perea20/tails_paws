@@ -29,7 +29,9 @@ class StaffSeeder extends Seeder
                 'name'          => $adminData['name'],
                 'lastname'      => $adminData['lastname'],
                 'password'      => Hash::make($adminData['password']),
-                'num_colegiado' => $adminData['num_colegiado'],
+                'role'          => 'admin',
+                'num_colegiado' => null,
+                'shift'         => null, 
             ]
         );
 
@@ -39,11 +41,13 @@ class StaffSeeder extends Seeder
                 'name'          => $receptionData['name'],
                 'lastname'      => $receptionData['lastname'],
                 'password'      => Hash::make($receptionData['password']),
-                'num_colegiado' => $receptionData['num_colegiado'],
+                'role'          => 'reception',
+                'num_colegiado' => null, 
+                'shift'         => null, 
             ]
         );
 
-        // Tus 10 usuarios aleatorios de prueba
-        Staff::factory()->count(10)->create();
+        Staff::factory()->count(5)->morning()->create();
+        Staff::factory()->count(5)->afternoon()->create();
     }
 }

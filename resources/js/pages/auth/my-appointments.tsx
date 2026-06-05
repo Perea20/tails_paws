@@ -98,7 +98,7 @@ export default function MyAppointments() {
 
   return (
     <>
-      <Head title="Mis Citas" />
+      <Head title="Mis citas" />
       
       <div className="fixed inset-0 bg-white min-h-screen text-neutral-800 w-screen overflow-y-auto antialiased selection:bg-emerald-100 z-50">
         <div className="w-full max-w-7xl mx-auto px-6 md:px-12 py-10 space-y-12">
@@ -111,7 +111,7 @@ export default function MyAppointments() {
 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end pb-8 border-b border-emerald-100 gap-6">
             <div className="space-y-2">
-              <h1 className="text-4xl font-extralight tracking-tight text-neutral-900">Mis Citas</h1>
+              <h1 className="text-4xl font-extralight tracking-tight text-neutral-900">Mis citas</h1>
               <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium text-emerald-800/80">
                 <p><span className="text-neutral-400 font-normal">Propietario: </span> {client?.name || 'Usuario'} {client?.lastname || client?.last_name || ''}</p>
                 <p><span className="text-neutral-400 font-normal">Email: </span> {client?.email || '—'}</p>

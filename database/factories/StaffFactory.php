@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Staff;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class StaffFactory extends Factory
 {
@@ -14,12 +14,28 @@ class StaffFactory extends Factory
     {
         return [
             'name' => $this->faker->firstName(),
-            'lastname' => $this->faker->lastName() . ' ' . $this->faker->lastName(), // Dos apellidos
+            'lastname' => $this->faker->lastName() . ' ' . $this->faker->lastName(),
             'email' => $this->faker->unique()->safeEmail(),
-            'password' => bcrypt('password'), 
+            'password' => Hash::make('password'), 
+            'role' => 'veterinarian',
             'num_colegiado' => $this->faker->unique()->numerify('########'),
+            'shift' => 'morning',     
             'created_at' => now(),
             'updated_at' => now(),
         ];
+    }
+
+    public function morning(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'shift' => 'morning',
+        ]);
+    }
+
+    public function afternoon(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'shift' => 'afternoon',
+        ]);
     }
 }

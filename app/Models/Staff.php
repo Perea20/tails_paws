@@ -17,8 +17,10 @@ class Staff extends Authenticatable
         'name',
         'lastname',
         'email',
+        'role',
         'password',
         'num_colegiado',
+        'shift'
     ];
 
     public function appointments(): HasMany

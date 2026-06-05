@@ -16,6 +16,25 @@ export default function Staff() {
         (item.role && item.role.toLowerCase().includes(search.toLowerCase()))
     );
 
+    // Helper para formatear visualmente los roles
+    const formatRole = (role: string) => {
+        const roles: Record<string, string> = {
+            admin: 'Administrador',
+            reception: 'Recepción',
+            veterinarian: 'Veterinario/a'
+        };
+        return roles[role] || role;
+    };
+
+    // Helper para formatear visualmente los turnos
+    const formatShift = (shift: string) => {
+        const shifts: Record<string, string> = {
+            morning: '☀️ Mañana',
+            afternoon: '🌙 Tarde'
+        };
+        return shifts[shift] || '—';
+    };
+
     return (
         <>
             <Head title="Staff" />
@@ -34,7 +53,7 @@ export default function Staff() {
                         <div className="relative w-full sm:max-w-xs">
                             <input
                                 type="text"
-                                placeholder="Buscar nombre o email"
+                                placeholder="Buscar nombre, email o rol..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-neutral-700 dark:bg-neutral-800"
@@ -60,7 +79,9 @@ export default function Staff() {
                                     <th className="px-6 py-4">Nombre</th>
                                     <th className="px-6 py-4">Apellido</th>
                                     <th className="px-6 py-4">Email</th>
+                                    <th className="px-6 py-4">Rol</th>
                                     <th className="px-6 py-4">Nº de Colegiado</th>
+                                    <th className="px-6 py-4">Turno</th>
                                     <th className="px-6 py-4">Acciones</th>
                                 </tr>
                             </thead>
@@ -77,8 +98,20 @@ export default function Staff() {
                                             <td className="px-6 py-4 font-medium text-neutral-900 dark:text-neutral-100">
                                                 {item.email}
                                             </td>
+                                            <td className="px-6 py-4 font-medium">
+                                                <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+                                                    item.role === 'admin' ? 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400' :
+                                                    item.role === 'reception' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' :
+                                                    'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400'
+                                                }`}>
+                                                    {formatRole(item.role)}
+                                                </span>
+                                            </td>
                                             <td className="px-6 py-4 font-medium text-neutral-900 dark:text-neutral-100">
-                                                {item.num_colegiado}
+                                                {item.num_colegiado || '—'}
+                                            </td>
+                                            <td className="px-6 py-4 font-medium text-neutral-900 dark:text-neutral-100">
+                                                {formatShift(item.shift)}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <button className="text-emerald-600 hover:text-emerald-800 text-xs font-medium">
@@ -89,7 +122,7 @@ export default function Staff() {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-8 text-center text-sm text-neutral-400 italic">
+                                        <td colSpan={7} className="px-6 py-8 text-center text-sm text-neutral-400 italic">
                                             No se han encontrado resultados.
                                         </td>
                                     </tr>
@@ -144,6 +177,6 @@ export default function Staff() {
 Staff.layout = {
     breadcrumbs: [
         { title: 'Admin', href: '/admin/dashboard' },
-        { title: 'Staff', href: '/admin/staff/staff' },
+        { title: 'Staff', href: '/admin/staff' },
     ],
 };

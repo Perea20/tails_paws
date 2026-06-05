@@ -123,4 +123,42 @@ class PetController extends Controller
 
         return redirect('/admin/animals')->with('message', 'Mascota registrada con éxito.');
     }
+
+    public function edit(Pet $pet)
+    {
+        $categories = AnimalCategory::select('id', 'name')->get();
+        $pet->load(['client', 'category']);
+
+        return Inertia::render('admin/animals/edit', [
+            'pet' => $pet,
+            'categories' => $categories
+        ]);
+    }
+
+    public function update(Request $request, Pet $pet)
+    {
+        $validated = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('pets')->where(function ($query) use ($request, $pet) {
+                    return $query->where('animal_category_id', $request->animal_category_id)
+                                 ->where('client_id', $pet->client_id);
+                })->ignore($pet->id),
+            ],
+            'chip_number' => 'nullable|string|max:255|unique:pets,chip_number,' . $pet->id,
+            'birth_date' => 'nullable|date',
+            'gender' => 'nullable|string|max:50',
+            'weight' => 'nullable|numeric',
+            'height' => 'nullable|numeric',
+            'animal_category_id' => 'required|exists:animal_categories,id',
+        ], [
+            'name.unique' => 'Este cliente ya tiene registrado un animal con el mismo nombre y especie.',
+        ]);
+
+        $pet->update($validated);
+
+        return redirect('/admin/animals')->with('message', 'Ficha del animal actualizada con éxito.');
+    }
 }
