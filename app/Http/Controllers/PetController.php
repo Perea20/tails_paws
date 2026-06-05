@@ -161,4 +161,23 @@ class PetController extends Controller
 
         return redirect('/admin/animals')->with('message', 'Ficha del animal actualizada con éxito.');
     }
+
+    public function showHistory($id)
+    {
+        $user = auth()->user();
+
+        $pet = Pet::where('id', $id)
+                ->where('client_id', $user->id) 
+                ->firstOrFail();
+
+        $appointments = $pet->appointments()
+                        ->with(['recordType']) 
+                        ->latest()
+                        ->paginate(10);
+
+        return Inertia::render('auth/pets-history', [
+            'pet' => $pet,
+            'appointments' => $appointments
+        ]);
+    }
 }

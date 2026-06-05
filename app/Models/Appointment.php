@@ -35,4 +35,8 @@ class Appointment extends Model
     {
         return $this->belongsTo(Client::class, 'client_id');
     }
+    public function medicalRecord()
+    {
+        return $this->hasOne(MedicalRecord::class, 'appointment_id');
+    }
 }

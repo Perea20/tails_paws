@@ -16,8 +16,11 @@ return new class extends Migration
             $table->foreignId('pet_id')->constrained('pets')->onDelete('cascade');
             $table->foreignId('staff_id')->constrained('staff');
             $table->foreignId('record_type_id')->constrained('record_types');
+            $table->foreignId('appointment_id')->constrained('appointments')->onDelete('cascade');
             $table->longText('diagnosis');
             $table->enum('status', ['abierta', 'cerrada'])->default('abierta');
+            $table->string('file_path')->nullable();
+            
             $table->timestamps();
         });
     }

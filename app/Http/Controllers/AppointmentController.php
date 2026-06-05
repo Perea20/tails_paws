@@ -154,7 +154,7 @@ class AppointmentController extends Controller
         $appointment->staff_id = $randomStaff->id;
         $appointment->save();
 
-        return redirect()->route('home')->with('success', '¡Cita reservada con éxito!');
+        return redirect('/my-appointments')->with('success', '¡Cita reservada con éxito!');
     }
 
     private function generateTimeSlots($start, $end): array
@@ -165,5 +165,15 @@ class AppointmentController extends Controller
             $slots[] = $date->format('H:i');
         }
         return $slots;
+    }
+
+    public function showMedicalRecord($id)
+    {
+        $appointment = Appointment::with(['medicalRecord.attachments', 'staff', 'recordType'])
+            ->findOrFail($id);
+
+        return Inertia::render('auth/medical-record', [
+            'appointment' => $appointment
+        ]);
     }
 }

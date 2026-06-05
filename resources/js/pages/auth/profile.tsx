@@ -189,7 +189,8 @@ export default function Profile() {
                                                 <th className="px-6 py-3.5 font-medium">Nº Identificador (Chip)</th>
                                                 <th className="px-6 py-3.5 font-medium">Género</th>
                                                 <th className="px-6 py-3.5 font-medium">Fecha de nacimiento</th>
-                                                <th className="px-6 py-3.5 font-medium text-right">Métricas</th>
+                                                <th className="px-6 py-3.5 font-medium">Métricas</th>
+                                                <th className="px-6 py-3.5 font-medium text-right">Historial</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-neutral-100 text-neutral-600">
@@ -219,6 +220,14 @@ export default function Profile() {
                                                         ) : (
                                                             <span className="text-neutral-300">—</span>
                                                         )}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-right">
+                                                        <Link 
+                                                            href={`/profile/pets/${pet.id}/history`}
+                                                            className="text-emerald-600 hover:text-emerald-800 font-semibold text-xs uppercase"
+                                                        >
+                                                            Ver
+                                                        </Link>
                                                     </td>
                                                 </tr>
                                             ))}

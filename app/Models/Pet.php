@@ -37,4 +37,8 @@ class Pet extends Model
     {
         return $this->belongsTo(AnimalCategory::class, 'animal_category_id');
     }
+    public function appointments() 
+    {
+        return $this->hasMany(Appointment::class);
+    }
 }

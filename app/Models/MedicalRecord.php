@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Attachment;
 
 class MedicalRecord extends Model
 {
@@ -15,7 +17,8 @@ class MedicalRecord extends Model
         'record_type_id',
         'appointment_id',
         'diagnosis',
-        'status'
+        'status',
+        'file_path',
     ];
 
     public function recordType(): BelongsTo
@@ -36,5 +39,9 @@ class MedicalRecord extends Model
     public function appointment(): BelongsTo
     {
         return $this->belongsTo(Appointment::class, 'appointment_id');
+    }
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(Attachment::class, 'medical_record_id');
     }
 }

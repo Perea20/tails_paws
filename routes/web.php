@@ -7,6 +7,7 @@ use App\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\NewPasswordController;
+use App\Http\Controllers\MedicalRecordController;
 
 // --- PARTE PÚBLICA (CLIENTES) ---
 Route::get('/', function () {
@@ -31,6 +32,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
     Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
     Route::get('/appointments/available-slots', [AppointmentController::class, 'getAvailableSlots']);
+    Route::get('/profile/pets/{pet}/history', [PetController::class, 'showHistory'])->name('pets.history');
+    Route::get('/appointments/{appointment}/medical-record', [AppointmentController::class, 'showMedicalRecord'])->name('appointments.medical-record');
 });
 
 // --- ACCESO STAFF (LOGIN / LOGOUT) ---
@@ -51,5 +54,9 @@ Route::prefix('admin')->middleware(['auth:staff'])->group(function () {
     Route::post('/staff', [StaffController::class, 'storeStaff'])->name('admin.staff.store');
     Route::get('/staff', [StaffController::class, 'index'])->name('admin.staff.index');
     Route::get('/owners/create', [StaffController::class, 'createOwner'])->name('admin.owners.create');
-    Route::post('/owners', [StaffController::class, 'storeOwner'])->name('admin.owners.store');
+    Route::post('/owners', [StaffController::class, 'storeOwner'])->name('admin.owners.store');  
+    Route::get('/medical-records/{appointment_id}/edit', [MedicalRecordController::class, 'edit'])->name('admin.medical-records.edit');
+    Route::post('/medical-records', [MedicalRecordController::class, 'store'])->name('admin.medical-records.store');
+    Route::put('/medical-records/{id}', [MedicalRecordController::class, 'update'])->name('admin.medical-records.update');
+    Route::delete('/attachments/{attachment}', [MedicalRecordController::class, 'destroyAttachment'])->name('admin.attachments.destroy');
 });
