@@ -2,7 +2,6 @@ import { Head, usePage, useForm, Link } from '@inertiajs/react';
 import React, { useState } from 'react';
 
 export default function Profile() {
-    // Al paginar en Laravel, 'myPets' pasa de ser un Array a ser un Objeto Paginador
     const { client, myPets, categories } = usePage().props as any;
     const [showForm, setShowForm] = useState(false);
 
@@ -26,7 +25,6 @@ export default function Profile() {
         });
     };
 
-    // Extraemos los datos reales del paginador (si no existe, por defecto array vacío)
     const petsList = myPets?.data || [];
 
     return (
@@ -36,14 +34,12 @@ export default function Profile() {
             <div className="bg-white min-h-screen text-neutral-800 w-full antialiased selection:bg-emerald-100">
                 <div className="w-full max-w-7xl mx-auto px-6 md:px-12 py-10 space-y-12">
                     
-                    {/* Logo */}
                     <div className="flex justify-center pb-6 border-b border-neutral-100">
                         <Link href="/">
                             <img src="/img/tplogotxt.png" alt="Logo Tails & Paws" className="h-30 w-auto" />
                         </Link>
                     </div>
 
-                    {/* Cabecera Datos del Cliente */}
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end pb-8 border-b border-emerald-100 gap-6">
                         <div className="space-y-2">
                             <h1 className="text-4xl font-extralight tracking-tight text-neutral-900">
@@ -65,7 +61,6 @@ export default function Profile() {
                         </button>
                     </div>
 
-                    {/* Formulario de Registro */}
                     {showForm && (
                         <div className="bg-white rounded-xl p-8 border border-emerald-100 shadow-sm max-w-3xl transition-all duration-300 animate-in fade-in slide-in-from-top-4 mx-auto">
                             <div className="mb-6">
@@ -172,7 +167,6 @@ export default function Profile() {
                         </div>
                     )}
 
-                    {/* Sección de la Tabla de Mascotas */}
                     <div className="space-y-4">
                         <h2 className="text-xl font-light tracking-tight text-neutral-900">
                             Mis mascotas registradas
@@ -235,7 +229,6 @@ export default function Profile() {
                                     </table>
                                 </div>
 
-                                {/* Paginación limpia con flechas corregidas */}
                                 {myPets && myPets.last_page > 1 && (
                                     <div className="flex justify-center items-center gap-1 pt-2">
                                         {myPets.links.map((link: any, index: number) => {
@@ -243,7 +236,6 @@ export default function Profile() {
                                                 return <span key={index} className="px-3 py-1.5 text-neutral-400 text-xs">...</span>;
                                             }
                                             
-                                            // Determinamos dinámicamente si es el botón atrás o adelante basándonos en la posición
                                             let cleanLabel = link.label;
                                             if (index === 0) {
                                                 cleanLabel = '←';

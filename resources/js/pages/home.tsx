@@ -1,12 +1,27 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, useForm } from '@inertiajs/react';
 import AppLogo from '@/components/app-logo';
 import { useState } from 'react';
 
 export default function Home() {
-    // Obtenemos los datos de auth desde las props compartidas
-    const { auth } = usePage().props as any;
+    const { auth, status } = usePage().props as any; // Capturamos el status devuelto por Laravel
     const user = auth.user;
     const [menuAbierto, setMenuAbierto] = useState(false);
+
+    // 1. Inicializamos el hook de Inertia para el formulario de contacto
+    const { data, setData, post, processing, reset } = useForm({
+        name: '',
+        email: '',
+        message: '',
+    });
+
+    // 2. Gestionamos el envío del correo electrónico
+    const handleContactSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post('/contact', {
+            onSuccess: () => reset(), // Limpia los campos tras un envío exitoso
+            preserveScroll: true,     // Mantiene la vista en la sección de contacto
+        });
+    };
 
     return (
         <div className="min-h-screen bg-white">
@@ -27,7 +42,6 @@ export default function Home() {
                         Acceso staff
                     </Link>
 
-                    {/* Lógica de Cliente */}
                     {user ? (
                         <div className="relative">
                             <button 
@@ -225,6 +239,7 @@ export default function Home() {
                                             style={{border:0}} 
                                             loading="lazy" 
                                             referrerPolicy="no-referrer-when-downgrade">
+                                         Bled
                                         </iframe>
                                     </div>
                                 </div>
@@ -243,12 +258,24 @@ export default function Home() {
                             </div>
                         </div>
 
-                       <form className="bg-gray-50 p-8 rounded-3xl border border-gray-100">
+                        {/* Formulario adaptado y funcional con Inertia */}
+                        <form onSubmit={handleContactSubmit} className="bg-gray-50 p-8 rounded-3xl border border-gray-100">
+                            
+                            {/* Alerta informativa de éxito al enviar */}
+                            {status && (
+                                <div className="mb-4 p-4 bg-emerald-50 text-emerald-700 text-sm rounded-xl font-medium border border-emerald-200">
+                                    {status}
+                                </div>
+                            )}
+
                             <div className="grid grid-cols-1 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Nombre Completo</label>
                                     <input 
                                         type="text" 
+                                        value={data.name}
+                                        onChange={e => setData('name', e.target.value)}
+                                        required
                                         className="w-full bg-white border-gray-200 rounded-xl p-3 outline-none focus:border-emerald-500 transition-colors text-gray-900 placeholder:text-gray-400" 
                                         placeholder="Tu nombre..." 
                                     />
@@ -257,6 +284,9 @@ export default function Home() {
                                     <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Email de contacto</label>
                                     <input 
                                         type="email" 
+                                        value={data.email}
+                                        onChange={e => setData('email', e.target.value)}
+                                        required
                                         className="w-full bg-white border-gray-200 rounded-xl p-3 outline-none focus:border-emerald-500 transition-colors text-gray-900 placeholder:text-gray-400" 
                                         placeholder="tu@email.com" 
                                     />
@@ -265,12 +295,19 @@ export default function Home() {
                                     <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Mensaje</label>
                                     <textarea 
                                         rows={4} 
+                                        value={data.message}
+                                        onChange={e => setData('message', e.target.value)}
+                                        required
                                         className="w-full bg-white border-gray-200 rounded-xl p-3 outline-none focus:border-emerald-500 transition-colors text-gray-900 placeholder:text-gray-400" 
                                         placeholder="¿En qué podemos ayudarte?"
                                     ></textarea>
                                 </div>
-                                <button type="submit" className="w-full bg-emerald-700 text-white font-bold py-4 rounded-xl hover:bg-emerald-700 transition-all">
-                                    Enviar Mensaje
+                                <button 
+                                    type="submit" 
+                                    disabled={processing}
+                                    className="w-full bg-emerald-700 text-white font-bold py-4 rounded-xl hover:bg-emerald-800 disabled:opacity-50 transition-all"
+                                >
+                                    {processing ? 'Enviando...' : 'Enviar Mensaje'}
                                 </button>
                             </div>
                         </form>

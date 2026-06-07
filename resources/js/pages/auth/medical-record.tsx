@@ -10,7 +10,6 @@ export default function MedicalRecord({ appointment }: any) {
         <div className="bg-white min-h-screen text-neutral-800 w-full antialiased">
             <div className="w-full max-w-5xl mx-auto px-4 md:px-6 py-6">
 
-                {/* Logo */}
                 <div className="flex justify-center pb-4 border-b border-neutral-100">
                     <Link href="/">
                         <img
@@ -21,7 +20,6 @@ export default function MedicalRecord({ appointment }: any) {
                     </Link>
                 </div>
 
-                {/* Volver */}
                 <Link
                     href="/profile"
                     className="text-emerald-600 mt-4 mb-4 block text-sm font-medium hover:underline"
@@ -33,7 +31,6 @@ export default function MedicalRecord({ appointment }: any) {
                     Detalles de la Ficha Médica
                 </h1>
 
-                {/* Datos principales */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                     <div className="p-4 border border-neutral-200 rounded-xl bg-white shadow-sm">
                         <p className="text-xs uppercase text-neutral-400 font-semibold">
@@ -54,7 +51,6 @@ export default function MedicalRecord({ appointment }: any) {
                     </div>
                 </div>
 
-                {/* Veterinario */}
                 <div className="p-4 border border-neutral-200 rounded-xl bg-white shadow-sm mb-4">
                     <p className="text-xs uppercase text-neutral-400 font-semibold">
                         Veterinario a cargo
@@ -69,7 +65,6 @@ export default function MedicalRecord({ appointment }: any) {
                     </p>
                 </div>
 
-                {/* Estado */}
                 <div className="mb-4">
                     <p className="text-sm font-semibold mb-2">
                         Estado
@@ -80,7 +75,6 @@ export default function MedicalRecord({ appointment }: any) {
                     </span>
                 </div>
 
-                {/* Diagnóstico */}
                 <div className="mb-6">
                     <p className="text-sm font-semibold mb-2">
                         Diagnóstico
@@ -91,7 +85,6 @@ export default function MedicalRecord({ appointment }: any) {
                     </div>
                 </div>
 
-                {/* Adjuntos */}
                 <div className="border-t border-neutral-200 pt-6">
                     <p className="text-sm font-semibold mb-3">
                         Documentación clínica adjunta

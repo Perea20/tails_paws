@@ -70,15 +70,15 @@ class StaffController extends Controller
         }
 
         if ($user->email === 'admin@admin.com') {
-            $appointments = Appointment::with(['pet', 'client', 'staff'])
-                ->orderBy('date', 'asc')
-                ->orderBy('time', 'asc')
+            $appointments = Appointment::with(['pet', 'client', 'staff', 'medicalRecord'])
+                ->orderBy('date', 'desc')
+                ->orderBy('time', 'desc')
                 ->get();
         } else {
-            $appointments = Appointment::with(['pet', 'client', 'staff'])
+            $appointments = Appointment::with(['pet', 'client', 'staff', 'medicalRecord'])
                 ->where('staff_id', $user->id) 
-                ->orderBy('date', 'asc')
-                ->orderBy('time', 'asc')
+                ->orderBy('date', 'desc')
+                ->orderBy('time', 'desc')
                 ->get();
         }
 
@@ -98,13 +98,22 @@ class StaffController extends Controller
         $pacientesNuevosCount = Pet::where('created_at', '>=', now()->subDays(7))->count();
 
         $recentActivity = $appointments->take(5)->map(function($app) {
+            $appointmentDateTime = Carbon::parse($app->date . ' ' . $app->time);
+            $deadline = $appointmentDateTime->copy()->addHours(24);
+            $now = Carbon::now();
+
+            $canWriteReport = $now->greaterThanOrEqualTo($appointmentDateTime) && $now->lessThanOrEqualTo($deadline);
+            $isFuture = $appointmentDateTime->isFuture();
+
             return [
                 'id' => $app->id,
                 'pet_name' => $app->pet?->name ?? 'Mascota',
                 'client_name' => $app->client?->name ?? 'Cliente',
                 'staff_name' => $app->staff ? 'Dr/a. ' . $app->staff->name . ' ' . $app->staff->lastname : 'Sin asignar',
-                'date' => Carbon::parse($app->date . ' ' . $app->time)->format('d/m/Y H:i'), 
+                'date' => $appointmentDateTime->format('d/m/Y H:i'), 
                 'reason' => $app->reason ?? 'Consulta general',
+                'can_write' => $canWriteReport, 
+                'is_future' => $isFuture,      
             ];
         });
 
@@ -128,28 +137,22 @@ class StaffController extends Controller
         return Inertia::render('admin/staff/create');
     }
 
-    /**
-     * PROCESO DE GUARDADO CON ROLES Y TURNOS DINÁMICOS
-     */
     public function storeStaff(Request $request)
     {
         if (Auth::guard('staff')->user()->email !== 'admin@admin.com') {
             abort(403, 'No tienes permisos para realizar esta acción.');
         }
 
-        // Validación dinámica condicional
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:staff,email'], 
             'password' => ['required', 'string'],
             'role' => ['required', 'in:admin,reception,veterinarian'],
-            // Si el rol es veterinario, el número de colegiado y el turno pasan a ser estrictamente obligatorios
             'num_colegiado' => [$request->role === 'veterinarian' ? 'required' : 'nullable', 'string', 'max:50'],
             'shift' => [$request->role === 'veterinarian' ? 'required' : 'nullable', 'in:morning,afternoon'],
         ]);
 
-        // Si el rol NO es veterinario, nos aseguramos de limpiar los campos para la BD
         if ($validated['role'] !== 'veterinarian') {
             $validated['num_colegiado'] = null;
             $validated['shift'] = null;

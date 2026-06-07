@@ -6,8 +6,11 @@ use App\Http\Controllers\PetController;
 use App\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 use App\Http\Controllers\NewPasswordController;
 use App\Http\Controllers\MedicalRecordController;
+use Illuminate\Support\Facades\Mail; 
+use App\Mail\ContactMessageMail;   
 
 // --- PARTE PÚBLICA (CLIENTES) ---
 Route::get('/', function () {
@@ -19,6 +22,18 @@ Route::get('/register', function () {
 });
 
 Route::post('/register', [ClientController::class, 'store']);
+
+Route::post('/contact', function (Request $request) {
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'message' => 'required|string',
+    ]);
+
+    Mail::to('tailspawsclinic@gmail.com')->send(new ContactMessageMail($validated));
+
+    return back()->with('status', '¡Mensaje enviado con éxito! Nos pondremos en contacto pronto.');
+});
 
 // --- RESET DE CONTRASEÑAS ---
 Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');

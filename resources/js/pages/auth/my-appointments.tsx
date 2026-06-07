@@ -1,5 +1,4 @@
 import { Head, usePage, Link } from '@inertiajs/react';
-import React from 'react';
 
 interface Pet {
   id: number;

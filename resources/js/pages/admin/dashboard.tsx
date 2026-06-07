@@ -17,8 +17,7 @@ export default function Dashboard() {
 
     const isReportWindowActive = (activity: any) => {
         if (!activity || !activity.date) return false;
-        if (activity.status === 'completado') return false;
-
+        
         let standardizedDateStr = activity.date;
         if (activity.date.includes('/')) {
             const [datePart, timePart] = activity.date.split(' ');
@@ -28,16 +27,10 @@ export default function Dashboard() {
 
         const appointmentDate = new Date(standardizedDateStr);
         if (isNaN(appointmentDate.getTime())) return false;
-        
+    
         const deadline = new Date(appointmentDate.getTime() + 24 * 60 * 60 * 1000); 
+    
         return currentTime >= appointmentDate.getTime() && currentTime <= deadline.getTime();
-    };
-
-    const getButtonTitle = (activity: any, canWrite: boolean) => {
-        if (activity.status === 'completado') return "Informe cerrado. No se puede modificar un historial completado.";
-        if (activity.status === 'pendiente' && !canWrite) return "El plazo de 24 horas para editar este informe pendiente ha expirado.";
-        if (!canWrite) return "El informe solo está disponible desde la hora de la cita hasta 24 horas después.";
-        return activity.status === 'pendiente' ? "Continuar editando informe" : "Redactar informe médico";
     };
 
     const handleNavigateToReport = (activityId: any) => {
@@ -48,7 +41,7 @@ export default function Dashboard() {
         <>
             <Head title="Dashboard Admin" />
             <div className="flex h-full flex-1 flex-col gap-6 p-4 md:p-6 bg-neutral-50/50 dark:bg-neutral-950">
-                
+
                 <div className="flex flex-col gap-1">
                     <h1 className="text-2xl font-bold tracking-tight text-neutral-800 dark:text-neutral-100">
                         Bienvenido, {staff.name} {staff.lastname}
@@ -108,7 +101,14 @@ export default function Dashboard() {
                         {recentActivity && recentActivity.length > 0 ? (
                             <div className="space-y-6">
                                 {recentActivity.map((activity: any) => {
+
                                     const canWriteReport = isReportWindowActive(activity);
+                                    const [datePart, timePart] = activity.date.split(' ');
+                                    const [day, month, year] = datePart.split('/');
+                                    const appTime = new Date(`${year}-${month}-${day}T${timePart}`).getTime();
+                                    const isFuture = appTime > currentTime;
+                                    const showExpiredView = !canWriteReport && !isFuture;
+
                                     return (
                                         <div key={activity.id} className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-neutral-50 dark:border-neutral-800/50 pb-4 last:border-0 last:pb-0 gap-4">
                                             <div className="flex gap-3 items-center">
@@ -119,37 +119,35 @@ export default function Dashboard() {
                                                     <p className="text-sm font-medium text-neutral-800 dark:text-neutral-100">
                                                         {activity.pet_name} <span className="text-neutral-400 font-normal">({activity.client_name})</span>
                                                     </p>
-                                                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mt-0.5">
-                                                        <p className="text-xs text-neutral-500 dark:text-neutral-400"><span className="font-semibold">Motivo:</span> {activity.reason}</p>
-                                                    </div>
+                                                    <p className="text-xs text-neutral-500">{activity.reason}</p>
                                                 </div>
                                             </div>
                                             
-                                            <div className="flex items-center gap-3 self-end sm:self-center">
-                                                <p className="text-xs font-mono font-medium text-neutral-600 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2.5 py-1 rounded-md">{activity.date}</p>
+                                            <div className="flex items-center gap-3">
+                                                <p className="text-xs font-mono text-neutral-500">
+                                                    {activity.date}
+                                                </p>
                                                 
-                                                {activity.status === 'completado' || activity.status === 'cerrada' ? (
+                                                {showExpiredView ? (
                                                     <Link 
-                                                        href={`/admin/medical-records/view/${activity.id}`}
-                                                        className="text-neutral-500 hover:text-emerald-600 transition-colors"
+                                                        href={`/admin/medical-records/${activity.id}/edit`}
+                                                        className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-600 hover:bg-emerald-500/20 transition-colors"
                                                     >
-                                                        <Eye className="h-5 w-5" />
+                                                        <Eye className="h-4 w-4" />
+                                                        Ver Informe
                                                     </Link>
                                                 ) : (
                                                     <button
                                                         onClick={() => handleNavigateToReport(activity.id)}
                                                         disabled={!canWriteReport}
-                                                        title={getButtonTitle(activity, canWriteReport)}
-                                                        className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                                                        className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-white transition-colors ${
                                                             canWriteReport 
-                                                                ? activity.status === 'pendiente'
-                                                                    ? 'bg-amber-500 text-white hover:bg-amber-600'
-                                                                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                                                                : 'bg-neutral-100 text-neutral-400 dark:bg-neutral-800 dark:text-neutral-600 cursor-not-allowed'
+                                                                ? 'bg-blue-600 hover:bg-blue-700' 
+                                                                : 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-50'
                                                         }`}
                                                     >
                                                         <FileText className="h-3.5 w-3.5" />
-                                                        {activity.status === 'pendiente' ? 'Revisar' : 'Informe'}
+                                                        Informe
                                                     </button>
                                                 )}
                                             </div>
@@ -158,7 +156,7 @@ export default function Dashboard() {
                                 })}
                             </div>
                         ) : (
-                            <p className="text-sm text-neutral-400 italic text-center py-4">No hay actividad de citas registrada.</p>
+                            <p className="text-center text-neutral-500 text-sm py-4">No hay actividad reciente.</p>
                         )}
                     </div>
                 </div>

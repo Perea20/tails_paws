@@ -16,7 +16,6 @@ export default function Staff() {
         (item.role && item.role.toLowerCase().includes(search.toLowerCase()))
     );
 
-    // Helper para formatear visualmente los roles
     const formatRole = (role: string) => {
         const roles: Record<string, string> = {
             admin: 'Administrador',
@@ -26,7 +25,6 @@ export default function Staff() {
         return roles[role] || role;
     };
 
-    // Helper para formatear visualmente los turnos
     const formatShift = (shift: string) => {
         const shifts: Record<string, string> = {
             morning: '☀️ Mañana',
@@ -82,7 +80,6 @@ export default function Staff() {
                                     <th className="px-6 py-4">Rol</th>
                                     <th className="px-6 py-4">Nº de Colegiado</th>
                                     <th className="px-6 py-4">Turno</th>
-                                    <th className="px-6 py-4">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -112,11 +109,6 @@ export default function Staff() {
                                             </td>
                                             <td className="px-6 py-4 font-medium text-neutral-900 dark:text-neutral-100">
                                                 {formatShift(item.shift)}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <button className="text-emerald-600 hover:text-emerald-800 text-xs font-medium">
-                                                    Editar
-                                                </button>
                                             </td>
                                         </tr>
                                     ))
